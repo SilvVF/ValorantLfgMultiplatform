@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="valorant_logo">valorant logo</string>
+    <string name="player_text_field_hint">
+        Find your account by name and tag, ie. player#NA1
+    </string>
+    <string name="parse_error_tag">The account name must include # before the tag ie. name#tag</string>
+    <string name="parse_error_blank">The account name cannot be blank</string>
+    <string name="trn_score_icon">Trn score icon</string>
+</resources>
