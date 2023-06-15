@@ -7,6 +7,7 @@ import org.koin.dsl.module
 val playerSetupModule = module {
 
     includes(domainModule)
+    includes(networkModule)
 
     factoryOf(::PlayerSetupScreenModel)
 }

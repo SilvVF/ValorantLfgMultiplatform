@@ -1,0 +1,9 @@
+query PostQuery($amount: Int!, $offset: Int!) {
+    posts(amount: $amount, offset: $offset) {
+        id
+        players
+        minRank
+        gameMode
+        needed
+    }
+}

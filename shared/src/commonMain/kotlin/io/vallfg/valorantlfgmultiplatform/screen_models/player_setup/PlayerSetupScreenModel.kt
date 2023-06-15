@@ -11,6 +11,11 @@ import io.vallfg.valorantlfgmultiplatform.domain.usecase.onSuccess
 import io.vallfg.valorantlfgmultiplatform.domain.usecase.suspendOnSuccess
 import io.vallfg.valorantlfgmultiplatform.nav.DestinationsNavigator
 import io.vallfg.valorantlfgmultiplatform.nav.SharedScreen
+import io.vallfg.valorantlfgmultiplatform.network.ApiRepo
+import io.vallfg.valorantlfgmultiplatform.network.suspendOnError
+import io.vallfg.valorantlfgmultiplatform.network.suspendOnException
+import io.vallfg.valorantlfgmultiplatform.network.suspendOnSuccess
+import io.vallfg.valorantlfgmultiplatform.toPlayerInfo
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,23 +28,13 @@ import kotlinx.coroutines.launch
 
 class PlayerSetupScreenModel(
     private val navigator: DestinationsNavigator,
+    private val apiRepo: ApiRepo,
     private val parsePlayerNameUseCase: ParsePlayerNameUseCase
 ): StateScreenModel<PlayerSetupState>(PlayerSetupState()) {
 
     private val TAG = "PlayerSetupScreenModel"
     private val _errorChannel = Channel<String>()
     val errorChannel = _errorChannel.receiveAsFlow()
-
-    init {
-        coroutineScope.launch {
-            delay(1000)
-            navigator.push(
-                ScreenRegistry.get(
-                    SharedScreen.PlayerView(PlayerInfo.testPlayer)
-                )
-            )
-        }
-    }
 
     fun handleAccountChanged(acc: String) {
         mutableState.update { it.copy(account = acc) }
@@ -61,7 +56,7 @@ class PlayerSetupScreenModel(
     fun handleSubmitAccount(account: String) = coroutineScope.launch {
         parsePlayerNameUseCase(account)
             .suspendOnSuccess { (name, tag) ->
-                upsertPlayerToApi(name, tag)
+                signPlayerIn(name, tag)
             }
             .onError { err ->
                 mutableState.getAndUpdate {
@@ -72,20 +67,25 @@ class PlayerSetupScreenModel(
             }
     }
 
-    private fun upsertPlayerToApi(name: String, tag: String) = coroutineScope.launch {
+    private fun signPlayerIn(name: String, tag: String) = coroutineScope.launch {
         mutableState.getAndUpdate { it.copy(fetching = true) }
-//        apiRepo.signInAsPlayer(name, tag)
-//            .suspendOnSuccess { val player = it.signInAsPlayer
-//
-//            }
-//            .suspendOnError { errors ->
-//                errors.forEach {
-//                    _errorChannel.send(it)
-//                }
-//            }
-//            .suspendOnException { err ->
-//                _errorChannel.send(err)
-//            }
+        apiRepo.login(name, tag)
+            .suspendOnSuccess {
+                val player = it.loginAsPlayer
+                navigator.push(
+                    ScreenRegistry.get(
+                        SharedScreen.PlayerView(player.toPlayerInfo())
+                    )
+                )
+            }
+            .suspendOnError { errors ->
+                errors.forEach {
+                    _errorChannel.send(it)
+                }
+            }
+            .suspendOnException { err ->
+                _errorChannel.send(err)
+            }
         mutableState.getAndUpdate { it.copy(fetching = false) }
     }
 }

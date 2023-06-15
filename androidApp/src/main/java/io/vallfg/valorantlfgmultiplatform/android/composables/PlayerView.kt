@@ -7,6 +7,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -98,8 +100,8 @@ fun PlayerView(
         derivedStateOf { cardRotation.value * 15f }
     }
 
-    val offsetY by remember(cardRotation) {
-        derivedStateOf { -abs(cardRotation.value * 3f) }
+    val offsetY by remember(offsetX) {
+        derivedStateOf { offsetX * (1 / 20 * offsetX) }
     }
 
     val screenWidthDp = LocalConfiguration.current.screenWidthDp
@@ -107,7 +109,7 @@ fun PlayerView(
     val dragState = rememberDraggableState { deltaInPx ->
         scope.launch {
             currentOffsetPx += deltaInPx
-            cardRotation.animateTo(currentOffsetPx / (screenWidthDp.toPx) * 30f)
+            cardRotation.snapTo((currentOffsetPx / (screenWidthDp.toPx)) * 30f)
         }
     }
 
@@ -121,6 +123,7 @@ fun PlayerView(
                        cardRotation.stop()
                 },
                 onDragStopped = {
+                    currentOffsetPx = 0f
                     cardRotation.animateTo(
                         targetValue = 0f,
                         animationSpec = spring(
@@ -128,7 +131,6 @@ fun PlayerView(
                             stiffness = Spring.StiffnessMedium
                         )
                     )
-                    currentOffsetPx = 0f
                 }
             )
             .systemBarsPadding()
@@ -143,15 +145,7 @@ fun PlayerView(
         LaunchedEffect(Unit) {
             visible = true
         }
-        Spacer(modifier = Modifier.height(64.dp))
-        Text(
-            text = "Swipe Right to confirm Left to go back.",
-            color =  Color(0xff0F1923),
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Bold,
-            fontSize = 22.sp,
-        )
-        Spacer(modifier = Modifier.height(32.dp))
+
         AnimatedVisibility(
             visible = visible,
             enter = slideInVertically { -it }
@@ -163,31 +157,22 @@ fun PlayerView(
                     Text(
                         text = "Confirm",
                         color = Color.Red,
-                        fontSize = 22.sp,
+                        fontSize = (32f * (cardRotation.value / 20f)).sp,
                         fontFamily = ValFont,
                         modifier = Modifier
                             .align(Alignment.CenterStart)
                             .offset(x = (40).dp)
-                            .graphicsLayer {
-                                val scale = cardRotation.value * 0.1f
-                                scaleX = scale
-                                scaleY = scale
-                            }
+
                     )
                 } else {
                     Text(
                         text = "Go Back",
                         color = Color.Red,
-                        fontSize = 22.sp,
+                        fontSize = -(32f * (cardRotation.value / 25f)).sp,
                         fontFamily = ValFont,
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
                             .offset(x = (-40).dp)
-                            .graphicsLayer {
-                                val scale = cardRotation.value * -0.1f
-                                scaleX = scale
-                                scaleY = scale
-                            }
                     )
                 }
                 PlayerCard(

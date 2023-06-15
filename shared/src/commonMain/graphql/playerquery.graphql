@@ -1,0 +1,41 @@
+query PlayerQuery($name: String!, $tag: String!){
+    player(name: $name, tag: $tag) {
+        name
+        tag
+        signedIn
+        data {
+            seasonId
+            seasonName
+            playlist
+            rank
+            iconUrl
+            matchesPlayed
+            matchWinPct
+            kills
+            killsPercentile
+            killsPerRound
+            killsPerMatch
+            scorePerRound
+            scorePerRoundPercentile
+            assists
+            assistsPerRound
+            assistsPerMatch
+            kd
+            kdPercentile
+            kda
+            dmgPerRound
+            headshotPct
+            headshotPctPercentile
+            econRating
+            firstBloodsPerMatch
+            firstDeathsPerRound
+            mostKillsInMatch
+            timePlayed
+            trnPerformanceScore
+            peakRank
+            peakRankIconUrl
+            peakRankActName
+        }
+    }
+}
+

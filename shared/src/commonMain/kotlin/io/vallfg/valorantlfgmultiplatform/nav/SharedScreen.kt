@@ -7,4 +7,6 @@ import io.vallfg.valorantlfgmultiplatform.PlayerInfo
 sealed class SharedScreen : ScreenProvider {
     object PlayerSetup : SharedScreen()
     data class PlayerView(val playerInfo: PlayerInfo) : SharedScreen()
+
+    data class PostView(val name: String, val tag: String): SharedScreen()
 }

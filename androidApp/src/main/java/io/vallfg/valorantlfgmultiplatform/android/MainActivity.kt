@@ -3,25 +3,34 @@ package io.vallfg.valorantlfgmultiplatform.android
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.runtime.LaunchedEffect
 import cafe.adriel.voyager.core.registry.rememberScreen
 import cafe.adriel.voyager.navigator.Navigator
-import io.vallfg.valorantlfgmultiplatform.android.screens.RegisterDestinationsNavigator
+import cafe.adriel.voyager.transitions.FadeTransition
 import io.vallfg.valorantlfgmultiplatform.android.theme.ValorantLfgTheme
+import io.vallfg.valorantlfgmultiplatform.nav.DestinationsNavigator
 import io.vallfg.valorantlfgmultiplatform.nav.SharedScreen
+import org.koin.androidx.compose.get
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
 
-            val scope = rememberCoroutineScope()
             val playerSetupScreen = rememberScreen(SharedScreen.PlayerSetup)
+            val lfgNavigator = get<DestinationsNavigator>()
 
             ValorantLfgTheme {
-                Navigator(
-                    RegisterDestinationsNavigator(playerSetupScreen)
-                )
+                Navigator(playerSetupScreen) {
+
+                    LaunchedEffect(key1 = true) {
+                        lfgNavigator.handleNavigationCommands(it)
+                    }
+
+                    FadeTransition(navigator = it)
+                }
             }
         }
     }

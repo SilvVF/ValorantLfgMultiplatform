@@ -1,46 +1,47 @@
 package io.vallfg.valorantlfgmultiplatform
 
+import io.vallfg.PlayerMutation
 import kotlin.math.roundToInt
 
 fun Double.roundTwoDecPlaces() = (this * 100.0).roundToInt() / 100.0
 
-//fun PlayerMutation.SignInAsPlayer.toPlayerInfo(): PlayerInfo {
-//    return PlayerInfo(
-//        name = name,
-//        tag = tag,
-//        kd = kd.roundTwoDecPlaces(),
-//        kda = kda.roundTwoDecPlaces(),
-//        headshotPct = headshotPct.roundTwoDecPlaces(),
-//        matchWinPct = matchWinPct.roundTwoDecPlaces(),
-//        matchesPlayed = matchesPlayed,
-//        killsPerMatch = killsPerMatch.roundTwoDecPlaces(),
-//        mostKillsInMatch = mostKillsInMatch,
-//        rank = rank,
-//        iconUrl = iconUrl,
-//        trnPerformanceScore = trnPerformanceScore.roundTwoDecPlaces(),
-//        kills = kills,
-//        killsPercentile = killsPercentile.roundTwoDecPlaces(),
-//        killsPerRound = killsPerRound.roundTwoDecPlaces(),
-//        playlist = playlist,
-//        seasonName = seasonName,
-//        seasonId = seasonId,
-//        scorePerRound = scorePerRound.roundTwoDecPlaces(),
-//        scorePerRoundPercentile = scorePerRoundPercentile.roundTwoDecPlaces(),
-//        assists = assists,
-//        assistsPerMatch = assistsPerMatch.roundTwoDecPlaces(),
-//        assistsPerRound = assistsPerRound.roundTwoDecPlaces(),
-//        peakRank = peakRank,
-//        peakRankActName = peakRankActName,
-//        firstDeathsPerRound = firstDeathsPerRound.roundTwoDecPlaces(),
-//        kdPercentile = kdPercentile.roundTwoDecPlaces(),
-//        dmgPerRound = dmgPerRound.roundTwoDecPlaces(),
-//        headshotPctPercentile = headshotPctPercentile.roundTwoDecPlaces(),
-//        econRating = econRating.roundTwoDecPlaces(),
-//        firstBloodsPerMatch = firstBloodsPerMatch.roundTwoDecPlaces(),
-//        timePlayed = timePlayed,
-//        peakRankIconUrl = peakRankIconUrl
-//    )
-//}
+fun PlayerMutation.LoginAsPlayer.toPlayerInfo(): PlayerInfo {
+    return PlayerInfo(
+        name = name,
+        tag = tag,
+        kd = data.kd.roundTwoDecPlaces(),
+        kda = data.kda.roundTwoDecPlaces(),
+        headshotPct = data.headshotPct.roundTwoDecPlaces(),
+        matchWinPct = data.matchWinPct.roundTwoDecPlaces(),
+        matchesPlayed = data.matchesPlayed,
+        killsPerMatch = data.killsPerMatch.roundTwoDecPlaces(),
+        mostKillsInMatch = data.mostKillsInMatch,
+        rank = data.rank,
+        iconUrl = data.iconUrl,
+        trnPerformanceScore = data.trnPerformanceScore.roundTwoDecPlaces(),
+        kills = data.kills,
+        killsPercentile = data.killsPercentile.roundTwoDecPlaces(),
+        killsPerRound = data.killsPerRound.roundTwoDecPlaces(),
+        playlist = data.playlist,
+        seasonName = data.seasonName,
+        seasonId = data.seasonId,
+        scorePerRound = data.scorePerRound.roundTwoDecPlaces(),
+        scorePerRoundPercentile = data.scorePerRoundPercentile.roundTwoDecPlaces(),
+        assists = data.assists,
+        assistsPerMatch = data.assistsPerMatch.roundTwoDecPlaces(),
+        assistsPerRound = data.assistsPerRound.roundTwoDecPlaces(),
+        peakRank = data.peakRank,
+        peakRankActName = data.peakRankActName,
+        firstDeathsPerRound = data.firstDeathsPerRound.roundTwoDecPlaces(),
+        kdPercentile = data.kdPercentile.roundTwoDecPlaces(),
+        dmgPerRound = data.dmgPerRound.roundTwoDecPlaces(),
+        headshotPctPercentile = data.headshotPctPercentile.roundTwoDecPlaces(),
+        econRating = data.econRating.roundTwoDecPlaces(),
+        firstBloodsPerMatch = data.firstBloodsPerMatch.roundTwoDecPlaces(),
+        timePlayed = data.timePlayed,
+        peakRankIconUrl = data.peakRankIconUrl
+    )
+}
 
 data class PlayerInfo(
     val name: String,

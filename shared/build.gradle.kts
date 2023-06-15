@@ -1,7 +1,9 @@
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
+    id("com.apollographql.apollo3") version "3.8.2"
 }
+
 
 @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
 kotlin {
@@ -42,7 +44,7 @@ kotlin {
                 implementation(libs.ktor.serialization.json)
                 implementation(libs.kotlin.serialization)
                 implementation(libs.koin.core)
-
+                implementation(libs.apollo)
             }
         }
         val commonTest by getting {
@@ -50,6 +52,12 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
+    }
+}
+
+apollo {
+    service("service") {
+        packageName.set("io.vallfg")
     }
 }
 

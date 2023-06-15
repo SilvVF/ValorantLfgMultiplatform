@@ -56,7 +56,7 @@ suspend fun ApiResponse<Any>.suspendOnException(
     }
     is ApiResponse.Success -> this
 }
-suspend fun <D : Operation.Data, > ApolloCall<D>.asApiResponse(): ApiResponse<D> {
+suspend fun <D : Operation.Data, > ApolloCall<D>.executeAsApiResponse(): ApiResponse<D> {
     return try {
         val response = this.execute()
         response.data?.let {

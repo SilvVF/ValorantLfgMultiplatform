@@ -1,0 +1,40 @@
+mutation PlayerMutation($name: String!, $tag: String!){
+    loginAsPlayer(name:$name, tag:$tag) {
+        name
+        tag
+        signedIn
+        data {
+            seasonName
+            seasonId
+            playlist
+            rank
+            iconUrl
+            matchesPlayed
+            matchWinPct
+            kills
+            killsPercentile
+            killsPerRound
+            killsPerMatch
+            scorePerRound
+            scorePerRoundPercentile
+            assists
+            assistsPerRound
+            assistsPerMatch
+            kd
+            kdPercentile
+            kda
+            dmgPerRound
+            headshotPct
+            headshotPctPercentile
+            econRating
+            firstBloodsPerMatch
+            firstDeathsPerRound
+            mostKillsInMatch
+            timePlayed
+            trnPerformanceScore
+            peakRank
+            peakRankIconUrl
+            peakRankActName
+        }
+    }
+}
