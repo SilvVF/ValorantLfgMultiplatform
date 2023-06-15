@@ -1,4 +1,4 @@
-package io.silv.valorantlfg.ui.composables
+package io.vallfg.valorantlfgmultiplatform.android.composables
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -66,7 +66,7 @@ fun PlayerTextField(
                 focused = it.isFocused
             },
         value = text,
-        textStyle = TextStyle(fontSize = 24.sp),
+        textStyle = TextStyle(fontSize = 24.sp, color = Color.White),
         onValueChange = onTextChanged,
         singleLine = true,
         keyboardOptions = KeyboardOptions(

@@ -1,4 +1,4 @@
-package io.silv.valorantlfg.ui.composables
+package io.vallfg.valorantlfgmultiplatform.android.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -49,7 +49,11 @@ import androidx.compose.ui.window.Popup
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.vallfg.valorantlfgmultiplatform.PlayerInfo
-import io.vallfg.valorantlfgmultiplatform.android.composables.TrnScoreIcon
+import io.vallfg.valorantlfgmultiplatform.android.theme.BluishGray
+import io.vallfg.valorantlfgmultiplatform.android.theme.DarkBluishBlack
+import io.vallfg.valorantlfgmultiplatform.android.theme.LightBluishGray
+import io.vallfg.valorantlfgmultiplatform.android.theme.LightGray
+import io.vallfg.valorantlfgmultiplatform.android.theme.LocalTheme
 import io.vallfg.valorantlfgmultiplatform.android.theme.ValFont
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalTextApi::class)
@@ -58,8 +62,8 @@ fun PlayerCard(
     modifier: Modifier = Modifier,
     player: PlayerInfo
 ) {
-    val cardColor = Color(0xff0F1923)
-    val headingColor = Color(0xff94A6BC)
+    val cardColor = DarkBluishBlack
+    val headingColor =  LightGray
     val valueColor = Color.White
     val ctx = LocalContext.current
     var trnScoreInfoVisible by remember {
@@ -253,12 +257,12 @@ fun TrnScoreCard(
     onInfoClick: () -> Unit,
 ) {
 
-    val headingColor = Color(0xff94A6BC)
+    val headingColor = LightGray
 
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xff1B2733))
+            .background(BluishGray)
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -320,10 +324,13 @@ fun StatCard(
     headingColor: Color = Color(0xff94A6BC),
     valueColor: Color = Color.White
 ) {
+
+    val cardColor = LightBluishGray
+
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(6.dp))
-            .background(Color(0xff263747))
+            .background(cardColor)
             .drawBehind {
                 drawLine(
                     color = Color.Red,
@@ -371,7 +378,7 @@ fun SubStat(
     modifier: Modifier = Modifier,
     heading: String,
     value: String,
-    headingColor: Color = Color(0xff94A6BC),
+    headingColor: Color = LightGray,
     valueColor: Color = Color.White
 ) {
     Row(
@@ -515,10 +522,3 @@ private data class TrnRankInfo(
     val description: String,
     val color: Color
 )
-
-@Composable
-private fun TrnRankInfo(
-    info: TrnRankInfo
-) {
-    
-}

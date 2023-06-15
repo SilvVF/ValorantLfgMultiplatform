@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarDuration
@@ -24,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,15 +34,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import io.silv.valorantlfg.ui.composables.PlayerTextField
 import io.vallfg.valorantlfgmultiplatform.android.R
+import io.vallfg.valorantlfgmultiplatform.android.atoms.LfgScaffold
 import io.vallfg.valorantlfgmultiplatform.domain.usecase.ParseError
 import io.vallfg.valorantlfgmultiplatform.screen_models.player_setup.PlayerSetupState
 import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun PlayerSetup(
-    playerSetupState: PlayerSetupState,
+    state: PlayerSetupState,
     errors: Flow<String>,
     onPlayerAccountChange: (account: String) -> Unit,
     onGetPlayerButtonClick: (account: String) -> Unit
@@ -56,9 +59,8 @@ fun PlayerSetup(
         }
     }
 
-    Scaffold(
+    LfgScaffold(
         modifier = Modifier.fillMaxSize(),
-        contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         }
@@ -74,15 +76,24 @@ fun PlayerSetup(
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .height(70.dp),
-                text = playerSetupState.account,
+                text = state.account,
                 onTextChanged = onPlayerAccountChange,
                 onDone = {
-                    onGetPlayerButtonClick(playerSetupState.account)
+                    onGetPlayerButtonClick(state.account)
                 },
-                searching = playerSetupState.fetching
+                searching = state.fetching,
             )
+            Button(
+                onClick = { onGetPlayerButtonClick(state.account) },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Red.copy(alpha = 0.7f)
+                ),
+                enabled = state.parsingErrors.isEmpty() && state.account.isNotBlank()
+            ) {
+                Text(text = "Next")
+            }
             LazyColumn {
-                items(playerSetupState.parsingErrors) { err ->
+                items(state.parsingErrors) { err ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()

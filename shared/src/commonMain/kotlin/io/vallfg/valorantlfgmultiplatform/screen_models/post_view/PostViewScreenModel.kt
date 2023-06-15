@@ -19,7 +19,7 @@ class PostViewScreenModel(
         coroutineScope.launch {
             apiRepo.getPost(40, 0)
                 .suspendOnSuccess {
-                    mutableState.value = PostViewState.Success(posts = it.posts)
+                    mutableState.value = PostViewState.Success(posts = it.posts.map(::asPost))
                     currentPostOffset = 40
                 }
                 .suspendOnFailure {
@@ -33,7 +33,9 @@ class PostViewScreenModel(
         apiRepo.getPost(25, currentPostOffset)
             .suspendOnSuccess {q ->
                 val state = (mutableState.value as? PostViewState.Success) ?: return@suspendOnSuccess
-                mutableState.value = state.copy(posts = state.posts + q.posts)
+                mutableState.value = state.copy(
+                    posts = state.posts + q.posts.map(::asPost)
+                )
                 currentPostOffset += 25
             }
             .suspendOnFailure {
