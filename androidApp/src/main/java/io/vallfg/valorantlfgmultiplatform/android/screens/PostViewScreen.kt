@@ -6,6 +6,11 @@ package io.vallfg.valorantlfgmultiplatform.android.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
@@ -27,9 +33,11 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -53,6 +61,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.BottomCenter
+import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,16 +70,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.vallfg.valorantlfgmultiplatform.Filterable
 import io.vallfg.valorantlfgmultiplatform.android.atoms.LfgBottomSheetScaffold
+import io.vallfg.valorantlfgmultiplatform.android.atoms.LfgButton
 import io.vallfg.valorantlfgmultiplatform.android.atoms.LfgText
 import io.vallfg.valorantlfgmultiplatform.android.composables.FilterCountAssistChip
 import io.vallfg.valorantlfgmultiplatform.android.composables.PostViewBottomSheet
+import io.vallfg.valorantlfgmultiplatform.android.composables.PostViewFloatingButtons
 import io.vallfg.valorantlfgmultiplatform.android.theme.BluishGray
 import io.vallfg.valorantlfgmultiplatform.android.theme.DarkBackGround
 import io.vallfg.valorantlfgmultiplatform.android.theme.LightGray
@@ -154,6 +168,27 @@ fun PostView(
         }
     }
 
+    val rankListState = rememberLazyListState()
+
+    val scrolledPastThreshold by remember {
+        derivedStateOf { rankListState.firstVisibleItemIndex > 5 }
+    }
+
+
+  PostViewFloatingButtons(
+      sheetVisible = sheetState.isVisible,
+      showScrollToTop = scrolledPastThreshold,
+      onScrollToTopClick = {
+          scope.launch {
+              rankListState.animateScrollToItem(0)
+          }
+      },
+      onCreatePostClick = {
+
+      }
+  )
+
+
     LfgBottomSheetScaffold(
         modifier = Modifier.fillMaxSize(),
         sheetContent = {
@@ -194,6 +229,7 @@ fun PostView(
         },
     ) { _ ->
         LazyColumn(
+            state = rankListState,
             modifier = Modifier
                 .fillMaxSize()
                 .windowInsetsPadding(
