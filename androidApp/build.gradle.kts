@@ -69,4 +69,5 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil)
     implementation(libs.coil.svg)
+    implementation(libs.kotlinx.datetime)
 }

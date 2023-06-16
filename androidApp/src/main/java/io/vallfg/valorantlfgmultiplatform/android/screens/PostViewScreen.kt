@@ -47,6 +47,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -64,6 +65,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -91,6 +93,11 @@ import io.vallfg.valorantlfgmultiplatform.screen_models.post_view.Post
 import io.vallfg.valorantlfgmultiplatform.screen_models.post_view.PostViewScreenModel
 import io.vallfg.valorantlfgmultiplatform.screen_models.post_view.PostViewState
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.ZoneOffset
+import kotlinx.datetime.toInstant
 
 data class
 
@@ -381,6 +388,30 @@ fun PostCard(
             LfgText(
                 text = post.gameMode.string,
                 fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        val timeSincePost by remember {
+            derivedStateOf {
+                val now = Clock.System.now().epochSeconds
+                val postTimeEpochSeconds = post.date.toInstant(TimeZone.currentSystemDefault()).epochSeconds
+                val minutesSince = (now - postTimeEpochSeconds) / 60
+                if (minutesSince < 1) {
+                    "<1"
+                } else {
+                    "${minutesSince.toInt()}m"
+                }
+            }
+        }
+        Box(Modifier
+            .weight(1f)
+            .fillMaxHeight(),
+            contentAlignment = TopEnd
+        ) {
+            LfgText(
+                text = timeSincePost,
+                color = LightGray,
+                modifier = Modifier.padding(12.dp)
             )
         }
     }
