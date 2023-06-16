@@ -344,17 +344,19 @@ fun FilterableNameBar(
                 fontWeight = FontWeight.Bold
             )
         }
-        IconButton(
-            onClick = onSearchClick,
-            modifier = Modifier
-                .offset(y = 2.dp)
-                .padding(end = 12.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Search,
-                contentDescription = "close",
-                tint = Color.White
-            )
+        if (key != "Sort by") {
+            IconButton(
+                onClick = onSearchClick,
+                modifier = Modifier
+                    .offset(y = 2.dp)
+                    .padding(end = 12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Search,
+                    contentDescription = "close",
+                    tint = Color.White
+                )
+            }
         }
     }
 }
