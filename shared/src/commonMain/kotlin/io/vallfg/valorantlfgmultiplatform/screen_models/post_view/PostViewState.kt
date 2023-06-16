@@ -5,6 +5,13 @@ import io.vallfg.valorantlfgmultiplatform.FilterString
 import io.vallfg.valorantlfgmultiplatform.Filterable
 import io.vallfg.valorantlfgmultiplatform.GameMode
 import io.vallfg.valorantlfgmultiplatform.Rank
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimePeriod
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.math.roundToLong
 import kotlin.random.Random
 
 sealed class PostViewState {
@@ -32,6 +39,7 @@ public data class Post(
     val minRankIconUrl: String,
     val gameMode: GameMode,
     val needed: Int,
+    val date: LocalDateTime
 )
 
 fun asPost(p: PostQuery.Post): Post {
@@ -42,7 +50,10 @@ fun asPost(p: PostQuery.Post): Post {
         minRank = rank,
         minRankIconUrl = "https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/${rank.value + 2}.png",
         gameMode = GameMode.fromString(p.gameMode),
-        needed = p.needed
+        needed = p.needed,
+        date = Instant
+            .fromEpochSeconds(p.createdAtEpochSecond.roundToLong())
+            .toLocalDateTime(TimeZone.currentSystemDefault())
     )
 }
 
@@ -64,7 +75,8 @@ val testPosts by lazy(LazyThreadSafetyMode.NONE) {
                         GameMode.Competitive,
                         GameMode.Unrated,
                         GameMode.SpikeRush
-                    ).random()
+                    ).random(),
+                    date = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 )
             )
         }

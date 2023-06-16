@@ -45,6 +45,7 @@ kotlin {
                 implementation(libs.kotlin.serialization)
                 implementation(libs.koin.core)
                 implementation(libs.apollo)
+                implementation(libs.kotlinx.datetime)
             }
         }
         val commonTest by getting {
