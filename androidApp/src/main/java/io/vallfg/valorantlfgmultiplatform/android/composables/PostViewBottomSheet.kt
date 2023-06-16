@@ -32,11 +32,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -55,6 +58,8 @@ import io.vallfg.valorantlfgmultiplatform.Filterable
 import io.vallfg.valorantlfgmultiplatform.android.atoms.LfgText
 import io.vallfg.valorantlfgmultiplatform.android.theme.BluishGray
 import io.vallfg.valorantlfgmultiplatform.android.theme.DarkBackGround
+import io.vallfg.valorantlfgmultiplatform.android.theme.DarkBluishBlack
+import io.vallfg.valorantlfgmultiplatform.android.theme.LightGray
 import io.vallfg.valorantlfgmultiplatform.android.theme.parseColor
 import io.vallfg.valorantlfgmultiplatform.getColorHex
 import io.vallfg.valorantlfgmultiplatform.screen_models.post_view.PostViewState
@@ -147,10 +152,30 @@ fun PostViewBottomSheet(
                                         tint = Color.White
                                     )
                                 }
-                                OutlinedTextField(
+                                TextField(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = TextFieldDefaults.colors(
+                                        focusedContainerColor = Color.Transparent,
+                                        unfocusedContainerColor = Color.Transparent,
+                                        focusedIndicatorColor = LightGray,
+                                        unfocusedIndicatorColor = LightGray,
+                                        cursorColor = Color.Red
+                                    ),
                                     value = searchText,
                                     onValueChange = {
                                         searchText = it
+                                    },
+                                    singleLine = true,
+                                    placeholder = {
+                                        LfgText("Search Filters")
+                                    },
+                                    trailingIcon = {
+                                        IconButton(onClick = { searchText = "" }) {
+                                            Icon(
+                                                imageVector = Icons.Filled.Clear,
+                                                contentDescription = "clear"
+                                            )
+                                        }
                                     }
                                 )
                             }
@@ -163,7 +188,7 @@ fun PostViewBottomSheet(
                                 searchText.ifBlank {
                                     return@derivedStateOf filterables
                                 }
-                                filterables.filter { searchText in it.string }
+                                filterables.filter { searchText.lowercase() in it.string.lowercase() }
                             }
                         }
 

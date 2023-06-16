@@ -23,9 +23,9 @@ class FilterPostsUseCase {
         val gameModeFilter = filters.find { it is GameMode }
 
         return posts.filter { post ->
-                post.minRank.string == (rankFilter?.string ?: post.minRank.string) &&
-                post.needed.toString() == (stringFilter?.string ?: post.needed.toString()) &&
-                post.gameMode.string == (gameModeFilter?.string ?: post.gameMode.string)
+                rankFilter?.run { this.string == post.minRank.string } ?: true &&
+                stringFilter?.run { this.string == post.needed.toString() } ?: true &&
+                gameModeFilter?.run { this.string == post.gameMode.string } ?: true
         }
     }
 }
