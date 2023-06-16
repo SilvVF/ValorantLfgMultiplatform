@@ -118,5 +118,23 @@ data class PlayerInfo(
   }
 }
 
+fun Filterable.getColorHex(): String {
+    return when(this) {
+        is FilterString -> "e5e5e5"
+        GameMode.Competitive -> "dc2626"
+        GameMode.SpikeRush -> "3b82f6"
+        GameMode.Unrated -> "16a34a"
+        Rank.Ascendant1, Rank.Ascendant2, Rank.Ascendant3 -> "16a34a"
+        Rank.Bronze1,Rank.Bronze2, Rank.Bronze3 -> "854d0e"
+        Rank.Diamond1, Rank.Diamond2, Rank.Diamond3 -> "e879f9"
+        Rank.Gold1, Rank.Gold2, Rank.Gold3 -> "fde68a"
+        Rank.Immortal1, Rank.Immortal2, Rank.Immortal3 -> "dc2626"
+        Rank.Iron1, Rank.Iron2, Rank.Iron3 -> "a1a1aa"
+        Rank.Plat1, Rank.Plat2, Rank.Plat3 -> "0284c7"
+        Rank.Radiant -> "fef9c3"
+        Rank.Silver1, Rank.Silver2, Rank.Silver3 -> "e5e5e5"
+        Rank.Unranked -> "fafafa"
+    }
+}
 
 

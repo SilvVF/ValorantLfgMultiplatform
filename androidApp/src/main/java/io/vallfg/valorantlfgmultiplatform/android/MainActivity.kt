@@ -1,7 +1,6 @@
 package io.vallfg.valorantlfgmultiplatform.android
 
 import android.os.Bundle
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -10,6 +9,8 @@ import androidx.core.view.WindowCompat
 import cafe.adriel.voyager.core.registry.rememberScreen
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.FadeTransition
+import io.vallfg.valorantlfgmultiplatform.android.screens.PostViewScreen
+import io.vallfg.valorantlfgmultiplatform.android.screens.PostViewScreenProps
 import io.vallfg.valorantlfgmultiplatform.android.theme.ValorantLfgTheme
 import io.vallfg.valorantlfgmultiplatform.nav.DestinationsNavigator
 import io.vallfg.valorantlfgmultiplatform.nav.SharedScreen
@@ -28,7 +29,7 @@ class MainActivity : ComponentActivity() {
             val lfgNavigator = get<DestinationsNavigator>()
 
             ValorantLfgTheme {
-                Navigator(playerSetupScreen) {
+                Navigator(PostViewScreen(PostViewScreenProps("",""))) {
 
                     LaunchedEffect(key1 = true) {
                         lfgNavigator.handleNavigationCommands(it)

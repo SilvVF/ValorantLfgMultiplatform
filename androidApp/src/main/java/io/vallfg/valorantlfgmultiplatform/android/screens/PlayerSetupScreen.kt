@@ -11,7 +11,6 @@ import io.vallfg.valorantlfgmultiplatform.screen_models.player_setup.PlayerSetup
 class PlayerSetupScreen: Screen {
 
 
-
     @Composable
     override fun Content() {
 

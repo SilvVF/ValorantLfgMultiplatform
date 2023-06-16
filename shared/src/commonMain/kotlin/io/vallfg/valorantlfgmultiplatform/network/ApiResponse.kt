@@ -36,6 +36,7 @@ suspend fun <T> ApiResponse<T>.suspendOnFailure(
     is ApiResponse.Success -> this
 
 }
+
 suspend fun ApiResponse<Any>.suspendOnError(
     executable: suspend (errors: List<String>) -> Unit
 )  = when(this) {

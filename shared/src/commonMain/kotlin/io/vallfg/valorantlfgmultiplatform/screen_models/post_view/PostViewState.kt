@@ -1,16 +1,25 @@
 package io.vallfg.valorantlfgmultiplatform.screen_models.post_view
 
 import io.vallfg.PostQuery
+import io.vallfg.valorantlfgmultiplatform.FilterString
+import io.vallfg.valorantlfgmultiplatform.Filterable
 import io.vallfg.valorantlfgmultiplatform.GameMode
 import io.vallfg.valorantlfgmultiplatform.Rank
-import kotlin.math.min
+import kotlin.random.Random
 
 sealed class PostViewState {
 
     object Loading: PostViewState()
 
     data class Success(
-        val posts: List<Post>
+        val rawPosts: List<Post> = emptyList(),
+        val posts: List<Post> = emptyList(),
+        val filters: Map<String, List<Filterable>> = mapOf(
+            "Game Mode" to GameMode.values(),
+            "Min Rank" to Rank.values(),
+            "Needed" to (1..4).map { FilterString(it.toString()) }
+        ),
+        val appliedFilters: List<Filterable> = emptyList()
     ): PostViewState()
 
     data class Error(val message: String): PostViewState()
@@ -35,4 +44,29 @@ fun asPost(p: PostQuery.Post): Post {
         gameMode = GameMode.fromString(p.gameMode),
         needed = p.needed
     )
+}
+
+val testPosts by lazy(LazyThreadSafetyMode.NONE) {
+    buildList {
+        repeat(40) {
+            val rank =
+                listOf(Rank.Diamond1, Rank.Immortal1, Rank.Iron2, Rank.Plat2, Rank.Gold3).random()
+            add(
+                Post(
+                    id = Random.nextInt().toString(),
+                    players = listOf(
+                        listOf("silv", "004"),
+                    ),
+                    needed = (1..4).random(),
+                    minRank = rank,
+                    minRankIconUrl = "https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/${rank.value + 2}.png",
+                    gameMode = listOf(
+                        GameMode.Competitive,
+                        GameMode.Unrated,
+                        GameMode.SpikeRush
+                    ).random()
+                )
+            )
+        }
+    }
 }

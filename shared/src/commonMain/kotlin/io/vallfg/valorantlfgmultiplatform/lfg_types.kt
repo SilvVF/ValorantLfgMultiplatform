@@ -1,6 +1,13 @@
 package io.vallfg.valorantlfgmultiplatform
 
-sealed class Rank(val value: Int, val string: String) {
+sealed class Filterable(
+    open val string: String,
+)
+
+
+data class FilterString(override val string: String): Filterable(string)
+
+sealed class Rank(val value: Int, override val string: String): Filterable(string) {
 
     object Radiant: Rank(25, string = "Radiant")
     object Immortal3: Rank(24, string = "Immortal III")
@@ -30,6 +37,18 @@ sealed class Rank(val value: Int, val string: String) {
     object Unranked: Rank(0, string = "Unranked")
 
     companion object {
+
+        fun values() = listOf(
+            Unranked,
+            Iron1, Iron2, Iron3,
+            Silver1, Silver2, Silver3,
+            Gold1, Gold2, Gold3,
+            Plat1, Plat2, Plat3,
+            Diamond1, Diamond2, Diamond3,
+            Ascendant1, Ascendant2, Ascendant3,
+            Immortal1, Immortal2, Immortal3,
+            Radiant
+        )
         fun fromString(string: String): Rank {
             return when (string.firstOrNull()?.lowercase()) {
                 "r" -> Radiant
@@ -100,12 +119,16 @@ sealed class Rank(val value: Int, val string: String) {
     }
 }
 
-sealed class GameMode(val string: String) {
+sealed class GameMode(override val string: String): Filterable(string) {
     object Competitive: GameMode("Competitive")
     object Unrated: GameMode("Unrated")
     object SpikeRush: GameMode("Spike Rush")
 
     companion object {
+
+        fun values(): List<Filterable> {
+            return listOf(Competitive, Unrated, SpikeRush)
+        }
         fun fromString(string: String): GameMode {
             return when (val c = string.firstOrNull()?.lowercase()) {
                 "c" -> Competitive
