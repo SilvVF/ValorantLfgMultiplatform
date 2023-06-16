@@ -11,7 +11,24 @@ sealed class Filterable(
 /**
  * Allows any string to be of type [Filterable].
  */
-data class FilterString(override val string: String): Filterable(string)
+data class Needed(override val string: String): Filterable(string)
+
+sealed class SortBy(override val string: String, val descending: Boolean): Filterable(string) {
+    object HighestRank: SortBy("Highest Rank", true)
+    object LowestRank: SortBy("Lowest Rank", false)
+    object Newest: SortBy("Newest", true)
+    object Oldest: SortBy("Oldest", false)
+    object MostPlayers: SortBy("Most Players", true)
+    object LeastPlayers: SortBy("Least Players", false)
+
+    companion object {
+        fun values() = listOf(
+            HighestRank, LowestRank,
+            Newest, Oldest,
+            MostPlayers, LeastPlayers
+        )
+    }
+}
 
 /**
  * all subclasses are [Filterable].

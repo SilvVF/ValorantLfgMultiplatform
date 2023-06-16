@@ -120,7 +120,7 @@ data class PlayerInfo(
 
 fun Filterable.getColorHex(): String {
     return when(this) {
-        is FilterString -> "e5e5e5"
+        is Needed -> "e5e5e5"
         GameMode.Competitive -> "dc2626"
         GameMode.SpikeRush -> "3b82f6"
         GameMode.Unrated -> "16a34a"
@@ -134,6 +134,7 @@ fun Filterable.getColorHex(): String {
         Rank.Radiant -> "fef9c3"
         Rank.Silver1, Rank.Silver2, Rank.Silver3 -> "e5e5e5"
         Rank.Unranked -> "fafafa"
+        else -> "e5e5e5"
     }
 }
 

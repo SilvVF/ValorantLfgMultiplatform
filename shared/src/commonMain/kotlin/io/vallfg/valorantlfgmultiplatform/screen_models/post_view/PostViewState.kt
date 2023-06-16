@@ -1,12 +1,12 @@
 package io.vallfg.valorantlfgmultiplatform.screen_models.post_view
 
 import io.vallfg.PostQuery
-import io.vallfg.valorantlfgmultiplatform.FilterString
+import io.vallfg.valorantlfgmultiplatform.Needed
 import io.vallfg.valorantlfgmultiplatform.Filterable
 import io.vallfg.valorantlfgmultiplatform.GameMode
 import io.vallfg.valorantlfgmultiplatform.Rank
+import io.vallfg.valorantlfgmultiplatform.SortBy
 import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimePeriod
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -24,7 +24,8 @@ sealed class PostViewState {
         val filters: Map<String, List<Filterable>> = mapOf(
             "Game Mode" to GameMode.values(),
             "Min Rank" to Rank.values(),
-            "Needed" to (1..4).map { FilterString(it.toString()) }
+            "Needed" to (1..4).map { Needed(it.toString()) },
+            "Sort by" to SortBy.values()
         ),
         val appliedFilters: List<Filterable> = emptyList()
     ): PostViewState()

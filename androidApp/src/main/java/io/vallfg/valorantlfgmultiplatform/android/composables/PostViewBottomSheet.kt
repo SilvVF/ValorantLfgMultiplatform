@@ -2,8 +2,6 @@ package io.vallfg.valorantlfgmultiplatform.android.composables
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.with
@@ -38,6 +36,8 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -103,9 +103,7 @@ fun PostViewBottomSheet(
             transitionSpec = {
                 val targetIndex = state.filters.keys.indexOf(targetState)
                 val currentIndex = state.filters.keys.indexOf(initialState)
-                if (currentIndex == -1) {
-                    fadeIn() with fadeOut()
-                }
+
                 if (targetIndex - currentIndex >= 0) {
                     slideInHorizontally { it } with slideOutHorizontally { -it }
                 } else {
@@ -113,8 +111,8 @@ fun PostViewBottomSheet(
                 }
             },
             modifier = Modifier.fillMaxSize()
-        ) {
-            it?.let { key ->
+        ) { contentKey ->
+            contentKey?.let { key ->
                 Column(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -133,52 +131,16 @@ fun PostViewBottomSheet(
                                hideSheet = hideSheet
                            )
                         } else {
-
-                            LaunchedEffect(true) {
-
-                            }
-
-                            Row {
-                                IconButton(
-                                    onClick = {
-                                        searchText = ""
-                                        searching = false
-                                    },
-                                    modifier = Modifier.offset(y = 2.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.ArrowBack,
-                                        contentDescription = "close",
-                                        tint = Color.White
-                                    )
+                            FilterSearchBar(
+                                searchText = searchText,
+                                onCloseSearchClick = {
+                                    searchText = ""
+                                    searching = false
+                                },
+                                onSearchTextChange = {
+                                    searchText = it
                                 }
-                                TextField(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = TextFieldDefaults.colors(
-                                        focusedContainerColor = Color.Transparent,
-                                        unfocusedContainerColor = Color.Transparent,
-                                        focusedIndicatorColor = LightGray,
-                                        unfocusedIndicatorColor = LightGray,
-                                        cursorColor = Color.Red
-                                    ),
-                                    value = searchText,
-                                    onValueChange = {
-                                        searchText = it
-                                    },
-                                    singleLine = true,
-                                    placeholder = {
-                                        LfgText("Search Filters")
-                                    },
-                                    trailingIcon = {
-                                        IconButton(onClick = { searchText = "" }) {
-                                            Icon(
-                                                imageVector = Icons.Filled.Clear,
-                                                contentDescription = "clear"
-                                            )
-                                        }
-                                    }
-                                )
-                            }
+                            )
                         }
                     }
                     state.filters[key]?.let { filterables ->
@@ -199,22 +161,152 @@ fun PostViewBottomSheet(
                             horizontalAlignment = Alignment.Start,
                             contentPadding = WindowInsets.systemBars.asPaddingValues()
                         ) {
-                            items(filterItems) {
-                                FilterItem(
-                                    filter = it,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            onFilterClick(it)
-                                        },
-                                    selected = it in state.appliedFilters
-                                )
+                            if (key == "Sort by") {
+                                items(filterItems.chunked(2)) { filters ->
+                                    if (filters.size != 2) {
+                                        return@items
+                                    }
+                                    SortGroupItem(
+                                        modifier = Modifier
+                                            .fillMaxWidth(),
+                                        onFilterClick = onFilterClick,
+                                        sortByAscending = filters.first(),
+                                        sortByDescending = filters.last(),
+                                        selectedAscending = filters.first() in state.appliedFilters,
+                                        selectedDescending = filters.last() in state.appliedFilters
+                                    )
+                                }
+                            } else {
+                                items(filterItems) {
+                                    FilterItem(
+                                        filter = it,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                onFilterClick(it)
+                                            },
+                                        selected = it in state.appliedFilters
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun FilterSearchBar(
+    modifier: Modifier = Modifier,
+    searchText: String,
+    onCloseSearchClick: () -> Unit,
+    onSearchTextChange: (String) -> Unit
+) {
+    Row(modifier) {
+        IconButton(
+            onClick = onCloseSearchClick,
+            modifier = Modifier.offset(y = 2.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.ArrowBack,
+                contentDescription = "close",
+                tint = Color.White
+            )
+        }
+        TextField(
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedIndicatorColor = LightGray,
+                unfocusedIndicatorColor = LightGray,
+                cursorColor = Color.Red
+            ),
+            value = searchText,
+            onValueChange = onSearchTextChange,
+            singleLine = true,
+            placeholder = {
+                LfgText("Search Filters")
+            },
+            trailingIcon = {
+                IconButton(onClick = { onSearchTextChange("") }) {
+                    Icon(
+                        imageVector = Icons.Filled.Clear,
+                        contentDescription = "clear"
+                    )
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun SortGroupItem(
+    modifier: Modifier = Modifier,
+    sortByAscending: Filterable,
+    sortByDescending: Filterable,
+    selectedAscending: Boolean,
+    selectedDescending: Boolean,
+    onFilterClick: (filter: Filterable) -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        SortItem(
+            sortBy = sortByAscending,
+            selected = selectedAscending,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(22.dp)
+        ) {
+            onFilterClick(it)
+        }
+        SortItem(
+            sortBy = sortByDescending,
+            selected = selectedDescending,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(22.dp)
+        ) {
+            onFilterClick(it)
+        }
+    }
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .height(12.dp)
+        .background(DarkBackGround))
+}
+
+@Composable
+fun SortItem(
+    modifier: Modifier = Modifier,
+    sortBy: Filterable,
+    selected: Boolean,
+    onFilterClick: (filter: Filterable) -> Unit
+) {
+    Row(
+        modifier = modifier.clickable { onFilterClick(sortBy) },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        LfgText(
+            text = sortBy.string,
+            fontSize = 18.sp,
+            modifier = Modifier.padding(start = 12.dp)
+        )
+        RadioButton(
+            selected = selected,
+            enabled = true,
+            onClick = null,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = Color.Red
+            ),
+            modifier = Modifier.padding(end = 22.dp)
+        )
     }
 }
 
