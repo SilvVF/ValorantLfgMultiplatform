@@ -10,7 +10,10 @@ sealed interface NavigationCommand {
     object NavigateUp : NavigationCommand
 }
 
-
+/**
+ * Sealed interface representing the navigation commands that can be used with to navigate between screens.
+ * Keeps the actual nav controller implementation separate from the action.
+ */
 sealed interface DestinationsNavigationCommand : NavigationCommand {
     data class Push(val item: Screen): DestinationsNavigationCommand
 
@@ -34,6 +37,10 @@ sealed interface DestinationsNavigationCommand : NavigationCommand {
         DestinationsNavigationCommand
 }
 
+/**
+ * Base class that can be changed to match the nav controller being used.
+ * @property navigationCommands shared flow of commands the can be emitted to to navigate.
+ */
 abstract class Navigator {
     val navigationCommands = MutableSharedFlow<NavigationCommand>(extraBufferCapacity = Int.MAX_VALUE)
 
@@ -46,6 +53,10 @@ abstract class Navigator {
     }
 }
 
+/**
+ * Navigator implementation for Voyager that uses the [cafe.adriel.voyager.navigator.Navigator] for navigation.
+ * Navigator needs to be registered using [handleNavigationCommands] before any navigation occurs.
+ */
 abstract class DestinationsNavigator : Navigator() {
     abstract fun navigate(route: Screen)
 
@@ -69,6 +80,10 @@ abstract class DestinationsNavigator : Navigator() {
 
     abstract fun popUntil(predicate: (Screen) -> Boolean)
 
+    /**
+     * Registers a navigator that will be called when navigation commands are received.
+     * must be called before navigation can happen.
+     */
     suspend fun handleNavigationCommands(navigator: cafe.adriel.voyager.navigator.Navigator) {
         navigationCommands
             .onSubscription { this@DestinationsNavigator.navControllerFlow.value = navigator  }
@@ -99,6 +114,9 @@ abstract class DestinationsNavigator : Navigator() {
     fun canNavUp(stack: cafe.adriel.voyager.navigator.Navigator): Boolean = !stack.isEmpty
 }
 
+/**
+ * Implementation of the [DestinationsNavigator] base class
+  */
 class LfgAppComposeNavigator : DestinationsNavigator() {
 
     override fun navigate(route: Screen) {

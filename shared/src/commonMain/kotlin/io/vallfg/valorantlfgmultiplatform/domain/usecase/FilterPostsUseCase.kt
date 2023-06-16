@@ -6,6 +6,14 @@ import io.vallfg.valorantlfgmultiplatform.GameMode
 import io.vallfg.valorantlfgmultiplatform.Rank
 import io.vallfg.valorantlfgmultiplatform.screen_models.post_view.Post
 
+/**
+ * Filter posts using the given [Filterable] list.
+ * If a filter for a category is not provided all values will be allowed.
+ * Filters based on the three category's below if any are blank all values in the category are allowed
+ *  - [GameMode]
+ *  - [FilterString]
+ *  - [Rank]
+ */
 class FilterPostsUseCase {
 
     operator fun invoke(posts: List<Post>, filters: List<Filterable>): List<Post> {
@@ -15,12 +23,9 @@ class FilterPostsUseCase {
         val gameModeFilter = filters.find { it is GameMode }
 
         return posts.filter { post ->
-            buildList {
-                rankFilter?.let { filter -> add(post.minRank.string == filter.string) } ?: add(true)
-                stringFilter?.let { filter -> add(post.needed.toString() == filter.string) } ?: add(true)
-                gameModeFilter?.let { filter -> add(post.gameMode.string == filter.string) } ?: add(true)
-            }
-                .all { it }
+                post.minRank.string == (rankFilter?.string ?: post.minRank.string) &&
+                post.needed.toString() == (stringFilter?.string ?: post.needed.toString()) &&
+                post.gameMode.string == (gameModeFilter?.string ?: post.gameMode.string)
         }
     }
 }

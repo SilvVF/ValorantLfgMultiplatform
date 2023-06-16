@@ -1,12 +1,22 @@
 package io.vallfg.valorantlfgmultiplatform
 
+/**
+ * Sealed class that marks a class as filterable.
+ * @property string used as a display value in the UI.
+ */
 sealed class Filterable(
     open val string: String,
 )
 
-
+/**
+ * Allows any string to be of type [Filterable].
+ */
 data class FilterString(override val string: String): Filterable(string)
 
+/**
+ * all subclasses are [Filterable].
+ * @property value represents the rank Radiant = 25 , Unranked = 0
+ */
 sealed class Rank(val value: Int, override val string: String): Filterable(string) {
 
     object Radiant: Rank(25, string = "Radiant")
@@ -38,6 +48,9 @@ sealed class Rank(val value: Int, override val string: String): Filterable(strin
 
     companion object {
 
+        /**
+         * list of all the subclasses for [Rank]
+         */
         fun values() = listOf(
             Unranked,
             Iron1, Iron2, Iron3,
@@ -49,6 +62,13 @@ sealed class Rank(val value: Int, override val string: String): Filterable(strin
             Immortal1, Immortal2, Immortal3,
             Radiant
         )
+
+        /**
+         * Parses string to a [Rank].
+         * Valid formats are string + number or string + I
+         * ex. valid formats - Immortal2, Immortal 2, ImmortalII, Immortal II
+         * defaults to Unranked if string was not valid.
+         */
         fun fromString(string: String): Rank {
             return when (string.firstOrNull()?.lowercase()) {
                 "r" -> Radiant
@@ -119,13 +139,22 @@ sealed class Rank(val value: Int, override val string: String): Filterable(strin
     }
 }
 
+/**
+ * Different game modes that a post can have when created.
+ * all subclasses are [Filterable].
+ * - [Competitive]
+ * - [Unrated]
+ * - [SpikeRush]
+ */
 sealed class GameMode(override val string: String): Filterable(string) {
     object Competitive: GameMode("Competitive")
     object Unrated: GameMode("Unrated")
     object SpikeRush: GameMode("Spike Rush")
 
     companion object {
-
+        /**
+         * convenience function to get the list as a [Filterable].
+         */
         fun values(): List<Filterable> {
             return listOf(Competitive, Unrated, SpikeRush)
         }

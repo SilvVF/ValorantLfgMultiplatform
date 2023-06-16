@@ -2,6 +2,12 @@ package  io.vallfg.valorantlfgmultiplatform.network
 import com.apollographql.apollo3.ApolloCall
 import com.apollographql.apollo3.api.Operation
 
+/**
+ * Wrapper class for Api calls.
+ * [Success] contains data if a call was successful.
+ * [Error] contains error messages from a bad request or server error.
+ * [Exception] contains the error message if an exception was thrown when trying to make the request.
+ */
 sealed class ApiResponse <out T>  {
 
     data class Success<out T>(val data: T): ApiResponse<T>()
@@ -22,6 +28,9 @@ suspend fun <T> ApiResponse<T>.suspendOnSuccess(
     }
 }
 
+/**
+ * Called when the response is either [ApiResponse.Exception] or [ApiResponse.Error].
+ */
 suspend fun <T> ApiResponse<T>.suspendOnFailure(
     executable: suspend (errors: List<String>) -> Unit
 )  = when(this) {
@@ -57,6 +66,10 @@ suspend fun ApiResponse<Any>.suspendOnException(
     }
     is ApiResponse.Success -> this
 }
+
+/**
+ *  executes the graphql network call and maps the response into an [ApiResponse]
+ */
 suspend fun <D : Operation.Data, > ApolloCall<D>.executeAsApiResponse(): ApiResponse<D> {
     return try {
         val response = this.execute()

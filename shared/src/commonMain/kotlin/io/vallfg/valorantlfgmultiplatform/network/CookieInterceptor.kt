@@ -7,6 +7,10 @@ import com.apollographql.apollo3.network.http.HttpInterceptor
 import com.apollographql.apollo3.network.http.HttpInterceptorChain
 import io.vallfg.valorantlfgmultiplatform.logging.Log
 
+/**
+ * Intercepts Set-Cookie from graphql responses.
+ * @property setCookieHeader contains the most recent intercepted cookie.
+ */
 class CookieInterceptor: HttpInterceptor {
 
     var setCookieHeader: HttpHeader? = null

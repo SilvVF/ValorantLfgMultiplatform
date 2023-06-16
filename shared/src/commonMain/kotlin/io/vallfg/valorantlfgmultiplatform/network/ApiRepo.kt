@@ -4,10 +4,12 @@ import com.apollographql.apollo3.ApolloClient
 import io.vallfg.PlayerMutation
 import io.vallfg.PlayerQuery
 import io.vallfg.PostQuery
-import io.vallfg.type.Player
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+/**
+ * Repository for graphql calls.
+ */
 class ApiRepo(
     private val client: ApolloClient
 ) {

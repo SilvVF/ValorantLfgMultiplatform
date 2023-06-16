@@ -6,6 +6,9 @@ import com.apollographql.apollo3.network.http.HttpInterceptor
 import com.apollographql.apollo3.network.http.HttpInterceptorChain
 import io.vallfg.valorantlfgmultiplatform.logging.Log
 
+/**
+ * Logs the http headers of all incoming requests and all received responses.
+ */
 class LoggingInterceptor: HttpInterceptor {
 
     private val tag = "LoggingInterceptor"

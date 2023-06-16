@@ -1,7 +1,13 @@
 package io.vallfg.valorantlfgmultiplatform.domain.usecase
 
 
-
+/**
+ * Use case to parse the player name as a single string into a name + tag that can be used.
+ * Returns the name and tag after splitting at # and trimming whitespace from the ends.
+ * Uses [UseCaseResponse] wrapper for return values.
+ * - Success returns [Pair] first value is name, second value is tag.
+ * - Error   return list of [ParseError].
+ */
 class ParsePlayerNameUseCase {
 
     private val TAG = "ParsePlayerNameUseCase"
