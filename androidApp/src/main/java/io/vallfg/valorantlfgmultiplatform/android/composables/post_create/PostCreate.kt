@@ -1,8 +1,7 @@
-@file:OptIn(ExperimentalFoundationApi::class)
+@file:OptIn(ExperimentalTextApi::class)
 
 package io.vallfg.valorantlfgmultiplatform.android.composables.post_create
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -40,20 +40,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.vallfg.valorantlfgmultiplatform.GameMode
 import io.vallfg.valorantlfgmultiplatform.Rank
+import io.vallfg.valorantlfgmultiplatform.android.atoms.LfgButton
 import io.vallfg.valorantlfgmultiplatform.android.atoms.LfgScaffold
 import io.vallfg.valorantlfgmultiplatform.android.atoms.LfgText
 import io.vallfg.valorantlfgmultiplatform.android.atoms.TopAppBarStyle
 import io.vallfg.valorantlfgmultiplatform.android.theme.ValFont
 
-data class RankItem(
-    val rank: Rank,
-    val imageUrl: String = "https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/${rank.value + 2}.png"
-)
-
-@OptIn(ExperimentalTextApi::class)
 @Composable
 fun PostCreate(
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
+    onCreatePostClick: (rank: Rank, gameMode: GameMode, needed: Int) -> Unit
 ) {
     LfgScaffold(
         modifier = Modifier.fillMaxSize(),
@@ -73,7 +69,7 @@ fun PostCreate(
         ),
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets
             .exclude(WindowInsets.systemBars)
-    ) { paddingValues ->
+    ) { _ ->
         Column(
             modifier = Modifier
                 .fillMaxSize(),
@@ -86,50 +82,21 @@ fun PostCreate(
                 mutableStateOf(0)
             }
 
+            var selectedRank by remember {
+                mutableStateOf<Rank>(Rank.Plat2)
+            }
+
             val gameModes = remember {
                 GameMode.values().map { it.string }
             }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.25f)
-                    .background(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(
-                                Color(0xff19245B),
-                                Color(0xff44274C),
-                                Color(0xff65263E)
-                            )
-                        )
-                    ),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                BasicTextField(
-                    modifier = Modifier
-                        .padding(top = 32.dp)
-                        .align(Alignment.Center),
-                    value = "VALORANT",
-                    onValueChange = { _ -> },
-                    singleLine = true,
-                    readOnly = true,
-                    textStyle = TextStyle(
-                        fontFamily = ValFont,
-                        color = Color.White.copy(alpha = 0.4f),
-                        fontSize = 200.sp,
-                        drawStyle = Stroke(
-                            miter = 10f,
-                            width = 5f,
-                            join = StrokeJoin.Round
-                        )
-                    ),
-                )
-            }
+
+            TopBanner()
             RankPager(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f, false)
             ) { rank ->
-
+                selectedRank = rank
             }
             Spacer(modifier = Modifier.height(12.dp))
             LfgText(
@@ -144,7 +111,7 @@ fun PostCreate(
                     selectedGameModeIdx = idx
                 }
             )
-            Spacer(modifier = Modifier.height(64.dp))
+            Spacer(modifier = Modifier.height(32.dp))
             LfgText(
                 text = "Players Needed",
                 fontWeight = FontWeight.SemiBold,
@@ -157,7 +124,60 @@ fun PostCreate(
                     selectedNeededIdx = idx
                 }
             )
+            Spacer(modifier = Modifier.height(32.dp))
+            LfgButton(
+                onClick = {
+                    onCreatePostClick(
+                        selectedRank,
+                        GameMode.values().getOrNull(selectedGameModeIdx) ?: GameMode.Competitive,
+                        selectedNeededIdx + 1
+                    )
+                },
+                textSize = 18.sp,
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .align(CenterHorizontally),
+                text = "Create post"
+            )
         }
     }
+}
 
+@Composable
+private fun TopBanner() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.25f)
+            .background(
+                brush = Brush.horizontalGradient(
+                    colors = listOf(
+                        Color(0xff19245B),
+                        Color(0xff44274C),
+                        Color(0xff65263E)
+                    )
+                )
+            ),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        BasicTextField(
+            modifier = Modifier
+                .padding(top = 32.dp)
+                .align(Alignment.Center),
+            value = "VALORANT",
+            onValueChange = { _ -> },
+            singleLine = true,
+            readOnly = true,
+            textStyle = TextStyle(
+                fontFamily = ValFont,
+                color = Color.White.copy(alpha = 0.4f),
+                fontSize = 200.sp,
+                drawStyle = Stroke(
+                    miter = 10f,
+                    width = 5f,
+                    join = StrokeJoin.Round
+                )
+            ),
+        )
+    }
 }

@@ -12,6 +12,7 @@ val appModule = module {
         postViewModule,
         networkModule,
         domainModule,
+        playerPreviewModule
     )
 
     single<DestinationsNavigator> {

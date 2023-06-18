@@ -1,9 +1,49 @@
 package io.vallfg.valorantlfgmultiplatform
 
 import io.vallfg.PlayerMutation
+import io.vallfg.PlayerQuery
 import kotlin.math.roundToInt
 
 fun Double.roundTwoDecPlaces() = (this * 100.0).roundToInt() / 100.0
+
+fun PlayerQuery.Data.toPlayerInfo(): PlayerInfo? {
+    val data = this.player?.data ?: return null
+    return PlayerInfo(
+        name = this.player.name,
+        tag = this.player.tag,
+        kd = data.kd.roundTwoDecPlaces(),
+        kda = data.kda.roundTwoDecPlaces(),
+        headshotPct = data.headshotPct.roundTwoDecPlaces(),
+        matchWinPct = data.matchWinPct.roundTwoDecPlaces(),
+        matchesPlayed = data.matchesPlayed,
+        killsPerMatch = data.killsPerMatch.roundTwoDecPlaces(),
+        mostKillsInMatch = data.mostKillsInMatch,
+        rank = data.rank,
+        iconUrl = data.iconUrl,
+        trnPerformanceScore = data.trnPerformanceScore.roundTwoDecPlaces(),
+        kills = data.kills,
+        killsPercentile = data.killsPercentile.roundTwoDecPlaces(),
+        killsPerRound = data.killsPerRound.roundTwoDecPlaces(),
+        playlist = data.playlist,
+        seasonName = data.seasonName,
+        seasonId = data.seasonId,
+        scorePerRound = data.scorePerRound.roundTwoDecPlaces(),
+        scorePerRoundPercentile = data.scorePerRoundPercentile.roundTwoDecPlaces(),
+        assists = data.assists,
+        assistsPerMatch = data.assistsPerMatch.roundTwoDecPlaces(),
+        assistsPerRound = data.assistsPerRound.roundTwoDecPlaces(),
+        peakRank = data.peakRank,
+        peakRankActName = data.peakRankActName,
+        firstDeathsPerRound = data.firstDeathsPerRound.roundTwoDecPlaces(),
+        kdPercentile = data.kdPercentile.roundTwoDecPlaces(),
+        dmgPerRound = data.dmgPerRound.roundTwoDecPlaces(),
+        headshotPctPercentile = data.headshotPctPercentile.roundTwoDecPlaces(),
+        econRating = data.econRating.roundTwoDecPlaces(),
+        firstBloodsPerMatch = data.firstBloodsPerMatch.roundTwoDecPlaces(),
+        timePlayed = data.timePlayed,
+        peakRankIconUrl = data.peakRankIconUrl
+    )
+}
 
 fun PlayerMutation.LoginAsPlayer.toPlayerInfo(): PlayerInfo {
     return PlayerInfo(

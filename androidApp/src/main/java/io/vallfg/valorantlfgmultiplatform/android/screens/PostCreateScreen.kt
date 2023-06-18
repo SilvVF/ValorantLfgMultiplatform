@@ -12,8 +12,14 @@ class PostCreateScreen: Screen {
 
         val navigator = LocalNavigator.current
 
-        PostCreate {
-            navigator?.pop()
+        PostCreate(
+           navigateBack = {
+               navigator?.pop()
+           } 
+        ) { rank, gameMode, needed ->  
+           navigator?.replace(
+               PostOwnerScreen(rank, gameMode, needed)
+           )
         }
     }
 }

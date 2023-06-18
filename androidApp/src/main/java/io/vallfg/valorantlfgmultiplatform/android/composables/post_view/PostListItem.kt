@@ -1,5 +1,6 @@
 package io.vallfg.valorantlfgmultiplatform.android.composables.post_view
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import kotlinx.datetime.toInstant
 fun PostListItem(
     modifier: Modifier = Modifier,
     post: Post,
+    onPlayerIconsClick: (players: List<List<String>>) -> Unit
 ) {
     val ctx = LocalContext.current
     Row(
@@ -66,7 +68,7 @@ fun PostListItem(
                     fontWeight = FontWeight.Bold
                 )
             }
-            Row {
+            Row(Modifier.clickable { onPlayerIconsClick(post.players) }) {
                 for (i in 0..post.needed) {
                     PlayerIcon(
                         playerName = post.players.getOrNull(i)

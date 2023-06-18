@@ -4,7 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -16,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 
@@ -47,9 +47,16 @@ fun LfgButton(
         interactionSource = interactionSource,
     ) {
         if (textSize != null) {
-            LfgText(text = text, fontSize = textSize)
+            LfgText(
+                text = text,
+                fontWeight = FontWeight.Bold,
+                fontSize = textSize
+            )
         } else {
-            LfgText(text = text)
+            LfgText(
+                text = text,
+                fontWeight = FontWeight.Bold
+            )
         }
         icon?.let {
             if (text.isNotBlank()) {

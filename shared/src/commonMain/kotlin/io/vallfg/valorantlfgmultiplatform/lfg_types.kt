@@ -172,9 +172,8 @@ sealed class GameMode(override val string: String): Filterable(string) {
         /**
          * convenience function to get the list as a [Filterable].
          */
-        fun values(): List<Filterable> {
-            return listOf(Competitive, Unrated, SpikeRush)
-        }
+        fun values() = listOf(Competitive, Unrated, SpikeRush)
+
         fun fromString(string: String): GameMode {
             return when (val c = string.firstOrNull()?.lowercase()) {
                 "c" -> Competitive

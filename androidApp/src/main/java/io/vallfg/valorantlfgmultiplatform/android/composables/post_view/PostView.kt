@@ -21,11 +21,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,10 +37,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.vallfg.valorantlfgmultiplatform.Filterable
 import io.vallfg.valorantlfgmultiplatform.android.atoms.LfgBottomSheetScaffold
+import io.vallfg.valorantlfgmultiplatform.android.screens.PlayerPreviewScreen
 import io.vallfg.valorantlfgmultiplatform.android.theme.BluishGray
+import io.vallfg.valorantlfgmultiplatform.android.theme.DarkBackGround
 import io.vallfg.valorantlfgmultiplatform.screen_models.post_view.Post
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class PostViewScreenState(
@@ -48,6 +49,8 @@ class PostViewScreenState(
     val scaffoldState: BottomSheetScaffoldState,
     val listState: LazyListState,
 ) {
+    var playerPreviewVisible by mutableStateOf(false)
+    var playersToPreview by mutableStateOf(emptyList<List<String>>())
 
     var bottomSheetKey by mutableStateOf<String?>(null)
         private set
@@ -69,6 +72,16 @@ class PostViewScreenState(
                 }
             }
         }
+    }
+
+    fun showPlayerPreview(players: List<List<String>>) {
+        playersToPreview = players
+        playerPreviewVisible = true
+    }
+
+    fun hidePlayerPreview() {
+        playerPreviewVisible = false
+        playersToPreview = emptyList()
     }
 
     fun scrollToTopOfList() {
@@ -136,6 +149,20 @@ fun PostView(
         onCreatePostClick = createPostButtonClick
     )
 
+    if (screenState.playerPreviewVisible) {
+        ModalBottomSheet(
+            sheetState = rememberModalBottomSheetState(
+                skipPartiallyExpanded = true
+            ),
+            containerColor = DarkBackGround,
+            onDismissRequest = {
+                screenState.hidePlayerPreview()
+            },
+        ) {
+            PlayerPreviewScreen(screenState.playersToPreview).Content()
+        }
+    }
+
     LfgBottomSheetScaffold(
         modifier = Modifier.fillMaxSize(),
         sheetContent = {
@@ -192,7 +219,9 @@ fun PostView(
                         .fillMaxWidth()
                         .height(100.dp)
                         .animateItemPlacement()
-                )
+                ) { players ->
+                    screenState.showPlayerPreview(players)
+                }
                 Box(
                     Modifier
                         .fillMaxWidth()

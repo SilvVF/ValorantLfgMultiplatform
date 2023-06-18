@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
+import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
@@ -43,6 +45,11 @@ import coil.request.ImageRequest
 import io.vallfg.valorantlfgmultiplatform.Rank
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
+
+data class RankItem(
+    val rank: Rank,
+    val imageUrl: String = "https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/${rank.value + 2}.png"
+)
 
 @Composable
 fun RankPager(
@@ -108,6 +115,10 @@ fun RankPager(
         HorizontalPager(
             pageCount = ranks.size,
             state = pagerState,
+            flingBehavior = PagerDefaults.flingBehavior(
+                state = pagerState,
+                pagerSnapDistance = PagerSnapDistance.atMost(ranks.size)
+            ),
             contentPadding = PaddingValues(
                 horizontal = widthOffset
             ),
