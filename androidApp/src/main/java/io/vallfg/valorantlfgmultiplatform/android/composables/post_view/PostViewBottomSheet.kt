@@ -88,7 +88,7 @@ fun PostViewBottomSheet(
         }
     }
 
-    val sortByItems by remember {
+    val sortByItems by remember(filterItems) {
         derivedStateOf {
             filterItems.chunked(2).map {
                 it.first() to it.last()

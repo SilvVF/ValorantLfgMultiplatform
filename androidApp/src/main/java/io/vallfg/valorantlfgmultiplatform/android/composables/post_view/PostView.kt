@@ -22,8 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ScaffoldDefaults
-import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -47,20 +45,26 @@ class PostViewScreenState(
     private val scope: CoroutineScope,
     val scaffoldState: BottomSheetScaffoldState,
     val listState: LazyListState,
-    private val bottomSheetState: SheetState = scaffoldState.bottomSheetState,
-    val sheetValue: SheetValue = bottomSheetState.currentValue,
 ) {
 
-    var bottomSheetKey: String? by mutableStateOf(null)
+    var bottomSheetKey by mutableStateOf<String?>(null)
+        private set
 
     val scrolledPastThreshold by derivedStateOf { listState.firstVisibleItemIndex > 5 }
-
-    val bottomSheetVisible by derivedStateOf { bottomSheetState.isVisible }
 
     fun scrollToTopOfList() {
         scope.launch {
             listState.animateScrollToItem(0)
         }
+    }
+
+
+    fun resetBottomSheetKey() {
+        bottomSheetKey = null
+    }
+
+    fun changeBottomSheetKey(key: String) {
+        bottomSheetKey = key
     }
 
     fun hideSheet() {
@@ -98,31 +102,27 @@ fun PostView(
 ) {
 
     val screenState = rememberPostViewScreenState()
+    val sheetVisible = screenState.scaffoldState.bottomSheetState.isVisible
 
-    LaunchedEffect(key1 = screenState.sheetValue) {
-        when(screenState.sheetValue) {
-            SheetValue.Hidden -> {
-                screenState.bottomSheetKey = null
-            }
-            else -> Unit
-        }
+    LaunchedEffect(sheetVisible) {
+        if (!sheetVisible)
+            screenState.resetBottomSheetKey()
     }
 
     LaunchedEffect(screenState.bottomSheetKey) {
-        if(screenState.bottomSheetKey != null) {
+        if(screenState.bottomSheetKey != null)
             screenState.showSheet()
-        }
     }
 
     BackHandler(
-        enabled = screenState.bottomSheetVisible
+        enabled = sheetVisible
     ) {
         screenState.hideSheet()
     }
 
 
     PostViewFloatingButtons(
-        sheetVisible = screenState.bottomSheetVisible,
+        sheetVisible =  screenState.scaffoldState.bottomSheetState.isVisible,
         showScrollToTop = screenState.scrolledPastThreshold,
         onScrollToTopClick = screenState::scrollToTopOfList,
         onCreatePostClick = {
@@ -161,7 +161,7 @@ fun PostView(
                 },
                 appliedFilters = appliedFilters.size,
                 onFilterClicked = {
-                    screenState.bottomSheetKey = it.title
+                    screenState.changeBottomSheetKey(it.title)
                 },
                 onRemoveFilters = removeAllFilters
             )
