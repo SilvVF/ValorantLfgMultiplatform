@@ -12,4 +12,6 @@ sealed class SharedScreen : ScreenProvider {
     data class PlayerView(val playerInfo: PlayerInfo) : SharedScreen()
 
     data class PostView(val name: String, val tag: String): SharedScreen()
+
+    object PostCreate: SharedScreen()
 }

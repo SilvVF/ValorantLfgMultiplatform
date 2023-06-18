@@ -14,26 +14,34 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
-sealed class PostViewState {
+sealed class PostViewState(
+    open val rawPosts: List<Post> = emptyList(),
+    open val posts: List<Post> = emptyList(),
+    val filters: Map<String, List<Filterable>> = mapOf(
+        "Game Mode" to GameMode.values(),
+        "Min Rank" to Rank.values(),
+        "Needed" to (1..4).map { Needed(it.toString()) },
+        "Sort by" to SortBy.values()
+    ),
+    open val appliedFilters: List<Filterable> = emptyList()
+) {
 
     object Loading: PostViewState()
 
     data class Success(
-        val rawPosts: List<Post> = emptyList(),
-        val posts: List<Post> = emptyList(),
-        val filters: Map<String, List<Filterable>> = mapOf(
-            "Game Mode" to GameMode.values(),
-            "Min Rank" to Rank.values(),
-            "Needed" to (1..4).map { Needed(it.toString()) },
-            "Sort by" to SortBy.values()
-        ),
-        val appliedFilters: List<Filterable> = emptyList()
-    ): PostViewState()
+        override val posts: List<Post> = emptyList(),
+        override val rawPosts: List<Post> = emptyList(),
+        override val appliedFilters: List<Filterable> = emptyList(),
+    ): PostViewState(
+        posts = posts,
+        rawPosts = rawPosts,
+        appliedFilters = appliedFilters
+    )
 
     data class Error(val message: String): PostViewState()
 }
 
-public data class Post(
+data class Post(
     val id: String,
     val players: List<List<String>>,
     val minRank: Rank,

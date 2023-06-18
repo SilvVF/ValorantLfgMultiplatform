@@ -2,6 +2,7 @@ plugins {
     kotlin("multiplatform")
     id("com.android.library")
     id("com.apollographql.apollo3") version "3.8.2"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
 }
 
 

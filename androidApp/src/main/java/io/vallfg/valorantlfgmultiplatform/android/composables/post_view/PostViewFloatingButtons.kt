@@ -1,4 +1,4 @@
-package io.vallfg.valorantlfgmultiplatform.android.composables
+package io.vallfg.valorantlfgmultiplatform.android.composables.post_view
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -8,16 +8,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
-import io.vallfg.valorantlfgmultiplatform.android.atoms.LfgButton
-import kotlinx.coroutines.launch
+import io.vallfg.valorantlfgmultiplatform.android.atoms.LfgText
 
 @Composable
 fun PostViewFloatingButtons(
@@ -35,14 +38,20 @@ fun PostViewFloatingButtons(
                 .width(120.dp)
                 .height(40.dp)
         ) {
-            LfgButton(
+            ExtendedFloatingActionButton(
                 onClick = onScrollToTopClick,
                 modifier = Modifier
-                    .width(120.dp)
                     .height(40.dp)
                     .offset(y = (-12).dp, x = 0.dp),
-                text = "to top",
-                icon = Icons.Filled.KeyboardArrowUp
+                containerColor = Color.Red,
+                content = {
+                    LfgText(text = "to top")
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowUp,
+                        contentDescription = "scroll to top",
+                        tint = Color.White
+                    )
+                },
             )
         }
     }
@@ -54,13 +63,19 @@ fun PostViewFloatingButtons(
             enter = slideInVertically(animationSpec = tween(300)) { it + 12 },
             exit = slideOutVertically { it },
         ) {
-            LfgButton(
+            FloatingActionButton(
                 onClick = onCreatePostClick,
-                text = "",
-                icon = Icons.Filled.Create,
                 modifier = Modifier
                     .height(40.dp)
-                    .offset(y = (-12).dp, x = 0.dp)
+                    .offset(y = (-12).dp, x = 0.dp),
+                containerColor = Color.Red,
+                content = {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "create post",
+                        tint = Color.White
+                    )
+                }
             )
         }
     }

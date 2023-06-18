@@ -1,4 +1,4 @@
-package io.vallfg.valorantlfgmultiplatform.android.composables
+package io.vallfg.valorantlfgmultiplatform.android.composables.post_view
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -35,13 +35,11 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,17 +56,16 @@ import io.vallfg.valorantlfgmultiplatform.Filterable
 import io.vallfg.valorantlfgmultiplatform.android.atoms.LfgText
 import io.vallfg.valorantlfgmultiplatform.android.theme.BluishGray
 import io.vallfg.valorantlfgmultiplatform.android.theme.DarkBackGround
-import io.vallfg.valorantlfgmultiplatform.android.theme.DarkBluishBlack
 import io.vallfg.valorantlfgmultiplatform.android.theme.LightGray
 import io.vallfg.valorantlfgmultiplatform.android.theme.parseColor
 import io.vallfg.valorantlfgmultiplatform.getColorHex
-import io.vallfg.valorantlfgmultiplatform.screen_models.post_view.PostViewState
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun PostViewBottomSheet(
-    state: PostViewState.Success,
-    currentBottomSheetContentKey: String?,
+    filters: Map<String, List<Filterable>>,
+    appliedFilters: List<Filterable>,
+    contentKey: String?,
     hideSheet: () -> Unit,
     onFilterClick: (filter: Filterable) -> Unit
 ) {
@@ -79,6 +76,26 @@ fun PostViewBottomSheet(
     var searching by remember {
         mutableStateOf(false)
     }
+
+    val filterItems by remember(contentKey, searchText) {
+        derivedStateOf {
+            filters[contentKey]?.let { filterables ->
+                searchText.ifBlank {
+                    return@derivedStateOf filterables
+                }
+                filterables.filter { searchText.lowercase() in it.string.lowercase() }
+            } ?: emptyList()
+        }
+    }
+
+    val sortByItems by remember {
+        derivedStateOf {
+            filterItems.chunked(2).map {
+                it.first() to it.last()
+            }
+        }
+    }
+
 
     Column(
         modifier = Modifier
@@ -99,10 +116,10 @@ fun PostViewBottomSheet(
                 .align(Alignment.CenterHorizontally)
         )
         AnimatedContent(
-            targetState = currentBottomSheetContentKey,
+            targetState = contentKey,
             transitionSpec = {
-                val targetIndex = state.filters.keys.indexOf(targetState)
-                val currentIndex = state.filters.keys.indexOf(initialState)
+                val targetIndex = filters.keys.indexOf(targetState)
+                val currentIndex = filters.keys.indexOf(initialState)
 
                 if (targetIndex - currentIndex >= 0) {
                     slideInHorizontally { it } with slideOutHorizontally { -it }
@@ -143,51 +160,36 @@ fun PostViewBottomSheet(
                             )
                         }
                     }
-                    state.filters[key]?.let { filterables ->
-
-                        val filterItems by remember(filterables, searchText) {
-                            derivedStateOf {
-                                searchText.ifBlank {
-                                    return@derivedStateOf filterables
-                                }
-                                filterables.filter { searchText.lowercase() in it.string.lowercase() }
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.Start,
+                        contentPadding = WindowInsets.systemBars.asPaddingValues()
+                    ) {
+                        if (key == "Sort by") {
+                            items(sortByItems) { filters ->
+                                SortGroupItem(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    onFilterClick = onFilterClick,
+                                    sortByAscending = filters.first,
+                                    sortByDescending = filters.second,
+                                    selectedAscending = filters.first in appliedFilters,
+                                    selectedDescending = filters.second in appliedFilters
+                                )
                             }
-                        }
-
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.Start,
-                            contentPadding = WindowInsets.systemBars.asPaddingValues()
-                        ) {
-                            if (key == "Sort by") {
-                                items(filterItems.chunked(2)) { filters ->
-                                    if (filters.size != 2) {
-                                        return@items
-                                    }
-                                    SortGroupItem(
-                                        modifier = Modifier
-                                            .fillMaxWidth(),
-                                        onFilterClick = onFilterClick,
-                                        sortByAscending = filters.first(),
-                                        sortByDescending = filters.last(),
-                                        selectedAscending = filters.first() in state.appliedFilters,
-                                        selectedDescending = filters.last() in state.appliedFilters
-                                    )
-                                }
-                            } else {
-                                items(filterItems) {
-                                    FilterItem(
-                                        filter = it,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
-                                                onFilterClick(it)
-                                            },
-                                        selected = it in state.appliedFilters
-                                    )
-                                }
+                        } else {
+                            items(filterItems) {
+                                FilterItem(
+                                    filter = it,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            onFilterClick(it)
+                                    },
+                                    selected = it in appliedFilters
+                                )
                             }
                         }
                     }

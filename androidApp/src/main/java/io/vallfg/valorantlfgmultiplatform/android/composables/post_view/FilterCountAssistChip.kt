@@ -1,4 +1,4 @@
-package io.vallfg.valorantlfgmultiplatform.android.composables
+package io.vallfg.valorantlfgmultiplatform.android.composables.post_view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

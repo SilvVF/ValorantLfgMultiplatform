@@ -4,6 +4,7 @@ import android.app.Application
 import cafe.adriel.voyager.core.registry.ScreenRegistry
 import io.vallfg.valorantlfgmultiplatform.android.screens.PlayerSetupScreen
 import io.vallfg.valorantlfgmultiplatform.android.screens.PlayerViewScreen
+import io.vallfg.valorantlfgmultiplatform.android.screens.PostCreateScreen
 import io.vallfg.valorantlfgmultiplatform.android.screens.PostViewScreen
 import io.vallfg.valorantlfgmultiplatform.android.screens.PostViewScreenProps
 import io.vallfg.valorantlfgmultiplatform.di.appModule
@@ -30,6 +31,9 @@ class LfgApp: Application() {
             }
             register<SharedScreen.PostView> {
                 PostViewScreen(PostViewScreenProps(it.name, it.tag))
+            }
+            register<SharedScreen.PostCreate> {
+                PostCreateScreen()
             }
         }
         startKoin {
