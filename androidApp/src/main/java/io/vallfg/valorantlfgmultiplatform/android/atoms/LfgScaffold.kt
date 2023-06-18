@@ -28,12 +28,12 @@ import io.vallfg.valorantlfgmultiplatform.android.theme.LightBluishGray
 import io.vallfg.valorantlfgmultiplatform.android.theme.LocalTheme
 
 
-data class TopAppBarStyle @OptIn(ExperimentalMaterial3Api::class) constructor(
-    val title: @Composable () -> Unit,
+data class TopAppBarStyle(
+    val title: @Composable () -> Unit = {},
+    val backgroundColor: Color? = null,
     val modifier: Modifier = Modifier,
     val navigationIcon: @Composable () -> Unit = {},
     val actions: @Composable RowScope.() -> Unit = {},
-    val scrollBehavior: TopAppBarScrollBehavior? = null
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -115,9 +115,8 @@ fun LfgScaffold(
                          actions = it.actions,
                          windowInsets = TopAppBarDefaults.windowInsets,
                          colors = TopAppBarDefaults.topAppBarColors(
-                             containerColor = containerColor
+                             containerColor = topAppBarStyle.backgroundColor ?: containerColor,
                          ),
-                         scrollBehavior = it.scrollBehavior
                      )
              }
         },

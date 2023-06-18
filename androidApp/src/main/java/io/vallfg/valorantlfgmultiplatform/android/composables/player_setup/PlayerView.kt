@@ -1,4 +1,4 @@
-package io.vallfg.valorantlfgmultiplatform.android.composables
+package io.vallfg.valorantlfgmultiplatform.android.composables.player_setup
 
 import android.content.res.Resources
 import android.util.TypedValue
@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.vallfg.valorantlfgmultiplatform.PlayerInfo
+import io.vallfg.valorantlfgmultiplatform.android.composables.PlayerCard
 import io.vallfg.valorantlfgmultiplatform.android.theme.ValFont
 import kotlinx.coroutines.launch
 

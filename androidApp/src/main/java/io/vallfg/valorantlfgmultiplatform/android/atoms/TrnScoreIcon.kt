@@ -1,4 +1,4 @@
-package io.vallfg.valorantlfgmultiplatform.android.composables
+package io.vallfg.valorantlfgmultiplatform.android.atoms
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf

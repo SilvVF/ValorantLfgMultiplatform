@@ -5,7 +5,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
-import io.vallfg.valorantlfgmultiplatform.android.composables.PlayerSetup
+import io.vallfg.valorantlfgmultiplatform.android.composables.player_setup.PlayerSetup
 import io.vallfg.valorantlfgmultiplatform.screen_models.player_setup.PlayerSetupScreenModel
 
 class PlayerSetupScreen: Screen {

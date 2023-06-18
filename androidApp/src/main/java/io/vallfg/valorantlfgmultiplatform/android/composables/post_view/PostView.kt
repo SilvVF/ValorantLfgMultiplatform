@@ -32,6 +32,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.vallfg.valorantlfgmultiplatform.Filterable
@@ -39,6 +40,7 @@ import io.vallfg.valorantlfgmultiplatform.android.atoms.LfgBottomSheetScaffold
 import io.vallfg.valorantlfgmultiplatform.android.theme.BluishGray
 import io.vallfg.valorantlfgmultiplatform.screen_models.post_view.Post
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class PostViewScreenState(
@@ -51,6 +53,23 @@ class PostViewScreenState(
         private set
 
     val scrolledPastThreshold by derivedStateOf { listState.firstVisibleItemIndex > 5 }
+
+    init {
+        scope.launch {
+            launch {
+                snapshotFlow { scaffoldState.bottomSheetState.isVisible }.collect { visible ->
+                    if (!visible) {
+                        resetBottomSheetKey()
+                    }
+                }
+            }
+            launch {
+                snapshotFlow { bottomSheetKey }.collect {
+                   it?.let { showSheet() }
+                }
+            }
+        }
+    }
 
     fun scrollToTopOfList() {
         scope.launch {
@@ -98,21 +117,11 @@ fun PostView(
     filters:  Map<String, List<Filterable>>,
     appliedFilters: List<Filterable>,
     removeAllFilters: () -> Unit,
-    applyFilter: (filter: Filterable) -> Unit
+    applyFilter: (filter: Filterable) -> Unit,
+    createPostButtonClick: () -> Unit,
 ) {
-
     val screenState = rememberPostViewScreenState()
     val sheetVisible = screenState.scaffoldState.bottomSheetState.isVisible
-
-    LaunchedEffect(sheetVisible) {
-        if (!sheetVisible)
-            screenState.resetBottomSheetKey()
-    }
-
-    LaunchedEffect(screenState.bottomSheetKey) {
-        if(screenState.bottomSheetKey != null)
-            screenState.showSheet()
-    }
 
     BackHandler(
         enabled = sheetVisible
@@ -120,16 +129,12 @@ fun PostView(
         screenState.hideSheet()
     }
 
-
     PostViewFloatingButtons(
         sheetVisible =  screenState.scaffoldState.bottomSheetState.isVisible,
         showScrollToTop = screenState.scrolledPastThreshold,
         onScrollToTopClick = screenState::scrollToTopOfList,
-        onCreatePostClick = {
-
-        }
+        onCreatePostClick = createPostButtonClick
     )
-
 
     LfgBottomSheetScaffold(
         modifier = Modifier.fillMaxSize(),

@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
+import cafe.adriel.voyager.navigator.LocalNavigator
 import io.vallfg.valorantlfgmultiplatform.Filterable
 import io.vallfg.valorantlfgmultiplatform.android.composables.post_view.PostView
 import io.vallfg.valorantlfgmultiplatform.screen_models.post_view.PostViewScreenModel
@@ -33,7 +34,9 @@ class PostViewScreen(
 
         val screenModel = getScreenModel<PostViewScreenModel>()
         val state by screenModel.state.collectAsState()
-        
+
+        val navigator = LocalNavigator.current
+
         when (state) {
             is PostViewState.Success -> {
                 PostView(
@@ -45,6 +48,9 @@ class PostViewScreen(
                     appliedFilters = state.appliedFilters,
                     removeAllFilters = {
                         screenModel.clearFilters()
+                    },
+                    createPostButtonClick = {
+                        navigator?.push(PostCreateScreen())
                     }
                 )
             }

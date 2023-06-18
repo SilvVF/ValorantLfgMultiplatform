@@ -49,11 +49,11 @@ import androidx.compose.ui.window.Popup
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.vallfg.valorantlfgmultiplatform.PlayerInfo
+import io.vallfg.valorantlfgmultiplatform.android.atoms.TrnScoreIcon
 import io.vallfg.valorantlfgmultiplatform.android.theme.BluishGray
 import io.vallfg.valorantlfgmultiplatform.android.theme.DarkBluishBlack
 import io.vallfg.valorantlfgmultiplatform.android.theme.LightBluishGray
 import io.vallfg.valorantlfgmultiplatform.android.theme.LightGray
-import io.vallfg.valorantlfgmultiplatform.android.theme.LocalTheme
 import io.vallfg.valorantlfgmultiplatform.android.theme.ValFont
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalTextApi::class)

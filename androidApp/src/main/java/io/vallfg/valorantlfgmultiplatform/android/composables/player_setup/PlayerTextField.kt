@@ -1,4 +1,4 @@
-package io.vallfg.valorantlfgmultiplatform.android.composables
+package io.vallfg.valorantlfgmultiplatform.android.composables.player_setup
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
