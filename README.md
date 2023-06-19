@@ -10,7 +10,7 @@ Allows you to view the players stats before joining into the group for a better 
 - [Coroutines + Flow](https://kotlinlang.org/docs/coroutines-overview.html)
 - [Jetpack Compose](https://developer.android.com/jetpack/compose)
 - [voyager](https://voyager.adriel.cafe/)
-- [GraphQL](https://voyager.adriel.cafe/](https://www.apollographql.com/docs/kotlin/)
+- [GraphQL](https://www.apollographql.com/docs/kotlin/)
 
 ## Current App images
 <img src="https://github.com/SilvVF/ValorantLfgMultiplatform/assets/98186105/34caa5ad-43ab-4bd3-b272-c2a007c8ba25" width=300>
