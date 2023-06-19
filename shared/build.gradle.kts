@@ -47,6 +47,8 @@ kotlin {
                 implementation(libs.koin.core)
                 implementation(libs.apollo)
                 implementation(libs.kotlinx.datetime)
+                implementation("io.ktor:ktor-client-content-negotiation:2.3.1")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.1")
             }
         }
         val commonTest by getting {

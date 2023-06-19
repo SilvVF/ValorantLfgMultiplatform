@@ -2,6 +2,7 @@ package io.vallfg.valorantlfgmultiplatform
 
 import io.vallfg.PlayerMutation
 import io.vallfg.PlayerQuery
+import kotlinx.serialization.Serializable
 import kotlin.math.roundToInt
 
 fun Double.roundTwoDecPlaces() = (this * 100.0).roundToInt() / 100.0
@@ -83,6 +84,7 @@ fun PlayerMutation.LoginAsPlayer.toPlayerInfo(): PlayerInfo {
     )
 }
 
+@Serializable
 data class PlayerInfo(
     val name: String,
     val tag: String,

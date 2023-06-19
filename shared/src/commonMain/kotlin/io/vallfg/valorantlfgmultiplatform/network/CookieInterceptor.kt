@@ -5,6 +5,8 @@ import com.apollographql.apollo3.api.http.HttpRequest
 import com.apollographql.apollo3.api.http.HttpResponse
 import com.apollographql.apollo3.network.http.HttpInterceptor
 import com.apollographql.apollo3.network.http.HttpInterceptorChain
+import io.ktor.http.CookieEncoding
+import io.ktor.http.decodeCookieValue
 import io.vallfg.valorantlfgmultiplatform.logging.Log
 
 /**

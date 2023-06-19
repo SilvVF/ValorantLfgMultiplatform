@@ -27,9 +27,9 @@ class MainActivity : ComponentActivity() {
 
             val playerSetupScreen = rememberScreen(SharedScreen.PlayerSetup)
             val lfgNavigator = get<DestinationsNavigator>()
-    //PostViewScreen(PostViewScreenProps("",""))
+            val postViewScreen  = rememberScreen(SharedScreen.PostView("",  ""))
             ValorantLfgTheme {
-                Navigator(PostViewScreen(PostViewScreenProps("",""))) {
+                Navigator(postViewScreen) {
 
                     LaunchedEffect(key1 = true) {
                         lfgNavigator.handleNavigationCommands(it)
