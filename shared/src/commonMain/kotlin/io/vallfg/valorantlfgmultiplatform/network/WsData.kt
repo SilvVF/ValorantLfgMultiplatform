@@ -18,7 +18,8 @@ data class BanPlayer(
 @Serializable
 @SerialName("SendMessage")
 data class SendMessage(
-    val text: String
+    val text: String,
+    val sendId: Int,
 ): InWsData
 
 @Serializable
@@ -43,15 +44,18 @@ data class PostClosed(
 @SerialName("Message")
 data class Message(
     val text: String,
+    val sendId: Int,
     val sender: WsPlayerData,
     val sentAtEpochSecond: Long
 ): OutWsData
 
 @Serializable
-@SerialName("PostCreate")
-data class PostCreate(
+@SerialName("PostJoined")
+data class PostJoined(
     val id: String,
+    val clientId: String,
 ): OutWsData
+
 
 @Serializable
 @SerialName("Error")
