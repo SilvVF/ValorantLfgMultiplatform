@@ -53,22 +53,20 @@ class WebsocketsRepo (
     private var conn: DefaultClientWebSocketSession? = null
     private val cookie = cookieInterceptor.setCookieHeader
 
-    private val mutableReceiveFlow = MutableSharedFlow<WsData>()
-    val receiveFlow = mutableReceiveFlow.asSharedFlow()
-
-
     suspend fun createPost(
         minRank: Rank,
         gameMode: GameMode,
         needed: Int,
-        onDisconnect: () -> Unit
+        onDisconnect: suspend () -> Unit,
+        onError: suspend (Throwable) -> Unit,
+        onReceived: suspend (OutWsData) -> Unit
     ) = runCatching {
         withContext(dispatcher.io) {
             client.webSocket(
                 method = HttpMethod.Get,
                 host = "10.0.2.2",
                 port = 8080,
-                path = "/create/1/unranked/Competitive",
+                path = "/create/$needed/${minRank.string}/${gameMode.string}",
                 request = {
                     addCookie(cookie)
                 }
@@ -81,7 +79,7 @@ class WebsocketsRepo (
                                 deserialize(
                                     frame = frame,
                                     onSuccess = { wsData ->
-                                        mutableReceiveFlow.emit(wsData)
+                                        onReceived(wsData)
                                     },
                                     onException = { e ->
                                         e.printStackTrace()
@@ -98,13 +96,13 @@ class WebsocketsRepo (
         }
     }
 
-    suspend fun deserialize(
+    private suspend fun deserialize(
         frame: Frame.Text,
-        onSuccess: suspend (WsData) -> Unit,
+        onSuccess: suspend (OutWsData) -> Unit,
         onException: suspend (Throwable) -> Unit
     ) {
         try {
-            val data = json.decodeFromString<WsData>(
+            val data = json.decodeFromString<OutWsData>(
                 frame.readText().also { Log.d(tag, it) }
             )
             onSuccess(data)
@@ -115,25 +113,26 @@ class WebsocketsRepo (
         }
     }
 
-    suspend fun send(data: WsData): Result<Unit> = runCatching {
+    suspend fun send(data: InWsData): Result<Unit> = runCatching {
         conn?.sendSerialized(data)
+    }
+
+    private fun HttpRequestBuilder.addCookie(header: HttpHeader?) {
+        header?.let {
+            val c = parseServerSetCookieHeader(it.value)
+            this.cookie(
+                c.name,
+                c.value,
+                c.maxAge,
+                c.expires,
+                c.domain,
+                c.path,
+                c.secure,
+                c.httpOnly,
+                c.extensions,
+            )
+        }
     }
 }
 
-fun HttpRequestBuilder.addCookie(header: HttpHeader?) {
-    header?.let {
-        val c = parseServerSetCookieHeader(it.value)
-        this.cookie(
-            c.name,
-            c.value,
-            c.maxAge,
-            c.expires,
-            c.domain,
-            c.path,
-            c.secure,
-            c.httpOnly,
-            c.extensions,
-        )
-    }
-}
 
