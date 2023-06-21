@@ -5,40 +5,24 @@ package io.vallfg.valorantlfgmultiplatform.network
 import com.apollographql.apollo3.api.http.HttpHeader
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
-import io.ktor.client.plugins.websocket.receiveDeserialized
 import io.ktor.client.plugins.websocket.sendSerialized
 import io.ktor.client.plugins.websocket.webSocket
-import io.ktor.client.plugins.websocket.webSocketSession
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.cookie
-import io.ktor.client.request.header
-import io.ktor.client.request.headers
-import io.ktor.client.request.url
-import io.ktor.http.Cookie
 import io.ktor.http.HttpMethod
-import io.ktor.http.append
-import io.ktor.http.cookies
-import io.ktor.http.parameters
 import io.ktor.http.parseServerSetCookieHeader
 import io.ktor.serialization.WebsocketConverterNotFoundException
 import io.ktor.serialization.WebsocketDeserializeException
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
-import io.ktor.websocket.send
 import io.vallfg.valorantlfgmultiplatform.GameMode
 import io.vallfg.valorantlfgmultiplatform.LfgDispatcher
 import io.vallfg.valorantlfgmultiplatform.Rank
 import io.vallfg.valorantlfgmultiplatform.logging.Log
-import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newFixedThreadPoolContext
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import kotlin.native.concurrent.ThreadLocal
 
 
 class WebsocketsRepo (
@@ -61,12 +45,12 @@ class WebsocketsRepo (
         onError: suspend (Throwable) -> Unit,
         onReceived: suspend (OutWsData) -> Unit
     ) = runCatching {
-        withContext(dispatcher.io) {
+        CoroutineScope(dispatcher.io).launch {
             client.webSocket(
                 method = HttpMethod.Get,
                 host = "10.0.2.2",
                 port = 8080,
-                path = "/create/$needed/${minRank.string}/${gameMode.string}",
+                path = "/create/$needed/${minRank.string.filter { it != ' ' }}/$gameMode",
                 request = {
                     addCookie(cookie)
                 }
@@ -83,6 +67,7 @@ class WebsocketsRepo (
                                     },
                                     onException = { e ->
                                         e.printStackTrace()
+                                        onError(e)
                                     }
                                 )
                             }

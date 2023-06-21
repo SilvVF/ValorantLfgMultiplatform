@@ -4,11 +4,7 @@ import com.apollographql.apollo3.ApolloClient
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.websocket.WebSockets
-import io.ktor.client.request.cookie
-import io.ktor.client.request.header
-import io.ktor.http.Cookie
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.serialization.kotlinx.json.json
 import io.vallfg.valorantlfgmultiplatform.network.ApiRepo
@@ -55,7 +51,9 @@ val networkModule = module {
     single<HttpClient> {
         HttpClient(CIO) {
             install(ContentNegotiation) {
-                json(get<Json>())
+                json(
+                    get<Json>()
+                )
             }
             install(WebSockets) {
                 contentConverter = KotlinxWebsocketSerializationConverter(get<Json>())

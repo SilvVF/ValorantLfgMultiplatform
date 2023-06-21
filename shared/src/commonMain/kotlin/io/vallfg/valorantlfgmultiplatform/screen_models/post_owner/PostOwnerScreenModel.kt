@@ -1,10 +1,13 @@
 package io.vallfg.valorantlfgmultiplatform.screen_models.post_owner
 
-import cafe.adriel.voyager.core.concurrent.AtomicInt32
 import cafe.adriel.voyager.core.model.StateScreenModel
 import cafe.adriel.voyager.core.model.coroutineScope
 import io.vallfg.valorantlfgmultiplatform.GameMode
 import io.vallfg.valorantlfgmultiplatform.Rank
+import io.vallfg.valorantlfgmultiplatform.domain.usecase.InsertFailedMessageUseCase
+import io.vallfg.valorantlfgmultiplatform.domain.usecase.SendMessageUseCase
+import io.vallfg.valorantlfgmultiplatform.domain.usecase.suspendOnError
+import io.vallfg.valorantlfgmultiplatform.domain.usecase.suspendOnSuccess
 import io.vallfg.valorantlfgmultiplatform.network.Error
 import io.vallfg.valorantlfgmultiplatform.network.Message
 import io.vallfg.valorantlfgmultiplatform.network.OutWsData
@@ -13,34 +16,28 @@ import io.vallfg.valorantlfgmultiplatform.network.PlayerLeft
 import io.vallfg.valorantlfgmultiplatform.network.PostClosed
 import io.vallfg.valorantlfgmultiplatform.network.PostJoined
 import io.vallfg.valorantlfgmultiplatform.network.PostState
-import io.vallfg.valorantlfgmultiplatform.network.SendMessage
 import io.vallfg.valorantlfgmultiplatform.network.WebsocketsRepo
 import io.vallfg.valorantlfgmultiplatform.network.WsPlayerData
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 class PostOwnerScreenModel(
     private val websocketsRepo: WebsocketsRepo,
+    private val sendMessageUseCase: SendMessageUseCase,
+    private val insertFailedMessageUseCase: InsertFailedMessageUseCase
 ): StateScreenModel<PostOwnerScreenState>(PostOwnerScreenState.Loading) {
 
     private val eventChannel = Channel<PostOwnerScreenEvent>()
     val events = eventChannel.receiveAsFlow()
 
     private val messageLoadingJobs = mutableMapOf<Int, Job?>()
-
-    private fun PostOwnerScreenState.updateSuccess(action: (state: PostOwnerScreenState.Success) -> PostOwnerScreenState) {
-        val state = this as? PostOwnerScreenState.Success
-        state?.let {
-            mutableState.value = action(it)
-        }
-    }
 
     fun connect(
         minRank: Rank,
@@ -71,58 +68,40 @@ class PostOwnerScreenModel(
         }
     }
 
-    private fun sendMessage(text: String) {
-        coroutineScope.launch {
-            val id = messageId.getAndIncrement()
-            websocketsRepo.send(
-                SendMessage(text, id)
-            )
-                .onSuccess {
-                    mutableState.value.updateSuccess { state ->
-                        val message = UiMessage.Outgoing(
-                            id = id,
-                            sentAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
-                            loading = true,
-                            message = Message(
-                                text = text,
-                                sender = state.users[state.clientId] ?: WsPlayerData.emptyPlayer,
-                                sentAtEpochSecond = 0L,
-                                sendId = id
-                            )
-                        )
-                        messageLoadingJobs[id] = updateMessageOnTimeoutJob(id, text)
-                        state.copy(messages = state.messages + message)
-                    }
-                }
-                .onFailure {
-                    eventChannel.send(
-                        PostOwnerScreenEvent.Error(it.message ?: "Unknown Error")
+    private fun sendMessage(text: String) = coroutineScope.launch {
+        sendMessageUseCase(
+            websocketsRepo = websocketsRepo,
+            text = text,
+            users = state.value.users,
+            clientId = state.value.clientId
+        )
+            .suspendOnSuccess {
+                messageLoadingJobs[it.id] = updateMessageOnTimeoutJob(it.id)
+                mutableState.updateSuccess { state ->
+                    state.copy(
+                        messages = state.messages + it
                     )
                 }
-        }
-    }
-
-    private fun removeTimeoutJob(id: Int) {
-        messageLoadingJobs[id]?.cancel()
-        messageLoadingJobs.remove(id)
-    }
-
-    private fun updateMessageOnTimeoutJob(id: Int, text: String, timoutMillis: Long = 10000) = coroutineScope.launch {
-        delay(timoutMillis)
-        mutableState.value.updateSuccess {
-            val idxOfSend = it.messages.indexOfFirst { msg ->
-                when (msg) {
-                    is UiMessage.Failed -> false
-                    is UiMessage.Incoming -> false
-                    is UiMessage.Outgoing -> msg.id == id
-                }
             }
-            it.copy(
-                messages = buildList {
-                    addAll(it.messages.subList(0, idxOfSend))
-                    add(UiMessage.Failed(text))
-                    addAll(it.messages.subList(idxOfSend + 1, it.messages.size))
-                }
+            .suspendOnError { errors ->
+                eventChannel.send(
+                    PostOwnerScreenEvent.Error(
+                        errors.firstOrNull()?.message ?: "Unknown Error"
+                    )
+                )
+            }
+    }
+
+    private fun updateMessageOnTimeoutJob(
+        id: Int,
+    ) = coroutineScope.launch {
+        delay(12000)
+        mutableState.updateSuccess { state ->
+            state.copy(
+                messages = insertFailedMessageUseCase(
+                    id = id,
+                    messages = state.messages
+                )
             )
         }
     }
@@ -130,11 +109,14 @@ class PostOwnerScreenModel(
     private suspend fun onReceived(data: OutWsData) {
         when (data) {
             is Message -> {
-                removeTimeoutJob(data.sendId)
-                mutableState.value.updateSuccess { state ->
+                mutableState.updateSuccess { state ->
                     state.copy(
                         messages = state.messages + toUiMessage(data)
-                    )
+                    ).also {
+                        if (data.sender.clientId == state.clientId) {
+                            messageLoadingJobs[data.sendId]?.cancel()
+                        }
+                    }
                 }
             }
             is Error -> {
@@ -143,7 +125,7 @@ class PostOwnerScreenModel(
                 )
             }
             is PlayerJoined -> {
-                mutableState.value.updateSuccess { state ->
+                mutableState.updateSuccess { state ->
                     state.copy(
                         users = buildMap<String, WsPlayerData> {
                             putAll(state.users)
@@ -153,7 +135,7 @@ class PostOwnerScreenModel(
                 }
             }
             is PlayerLeft -> {
-                mutableState.value.updateSuccess { state ->
+                mutableState.updateSuccess { state ->
                     state.copy(
                         users = state.users.filter { (id, player) ->
                             id != data.player.clientId
@@ -175,7 +157,7 @@ class PostOwnerScreenModel(
                 )
             }
             is PostJoined -> {
-                mutableState.value.updateSuccess {
+                mutableState.updateSuccess {
                     it.copy(
                         postId = data.id,
                         clientId = data.clientId
@@ -183,7 +165,7 @@ class PostOwnerScreenModel(
                 }
             }
             is PostState -> {
-                mutableState.value.updateSuccess { state ->
+                mutableState.updateSuccess { state ->
                     state.copy(
                         postState = PostState(
                             creator = data.creator,
@@ -193,34 +175,44 @@ class PostOwnerScreenModel(
                             gameMode = GameMode.fromString(data.gameMode)
                         ),
                         messages = data.messages.map(::toUiMessage),
-                        users = data.users.associateBy { it.clientId }
+                        users = buildMap {
+                            putAll(data.users.associateBy { it.clientId })
+                            putAll(data.users.associateBy { "hello" })
+                        }
                     )
                 }
             }
         }
     }
 
-    private val messageId = AtomicInt32(0)
-
-    private fun resendFailedMessage(message: UiMessage.Failed) {
-        coroutineScope.launch {
+    private fun resendFailedMessage(
+        message: UiMessage.Failed
+    ) = coroutineScope.launch {
             removeFailedMessage(message)
             sendMessage(message.text)
+    }
+
+    private fun removeFailedMessage(
+        message: UiMessage.Failed
+    ) = coroutineScope.launch {
+        mutableState.updateSuccess { state ->
+            state.copy(
+                messages = state.messages.filter { it != message }
+            )
         }
     }
 
-    private fun removeFailedMessage(message: UiMessage.Failed) {
-        coroutineScope.launch {
-            mutableState.value.updateSuccess { state ->
-                state.copy(
-                    messages = state.messages.filter { it != message }
-                )
-            }
+    private suspend fun MutableStateFlow<PostOwnerScreenState>.updateSuccess(
+        action: (state: PostOwnerScreenState.Success) -> PostOwnerScreenState
+    ) {
+        (this.value as? PostOwnerScreenState.Success)?.let {
+            val result = action(it)
+            this.emit(result)
         }
     }
 
     private fun toUiMessage(message: Message): UiMessage {
-        return if (message.sender.clientId == (mutableState.value as? PostOwnerScreenState.Success)?.clientId) {
+        return if (message.sender.clientId == state.value.clientId) {
             UiMessage.Outgoing(
                 id = -1,
                 message = message,

@@ -6,21 +6,24 @@ import io.vallfg.valorantlfgmultiplatform.network.Message
 import io.vallfg.valorantlfgmultiplatform.network.WsPlayerData
 import kotlinx.datetime.LocalDateTime
 
-sealed class PostOwnerScreenState {
+sealed class PostOwnerScreenState(
+    open val clientId: String = "",
+    open val users: Map<String, WsPlayerData> = emptyMap(),
+) {
 
     object Loading: PostOwnerScreenState()
 
     data class Success(
         val postId: String? = null,
-        val clientId: String = "",
+        override val clientId: String = "",
         val messages: List<UiMessage> = emptyList(),
-        val users: Map<String, WsPlayerData> = emptyMap(),
+        override val users: Map<String, WsPlayerData> = emptyMap(),
         val postState: PostState? = null,
     ): PostOwnerScreenState()
 
     data class Closed(
         val messages: List<Message> = emptyList(),
-        val users: Map<String, WsPlayerData> = emptyMap(),
+        override val users: Map<String, WsPlayerData> = emptyMap(),
         val postState: PostState,
     ) : PostOwnerScreenState()
 

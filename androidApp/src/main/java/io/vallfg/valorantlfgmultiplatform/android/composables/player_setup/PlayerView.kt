@@ -116,13 +116,15 @@ fun PlayerView(
                 },
                 onDragStopped = {
                     currentOffsetPx = 0f
-                    cardRotation.animateTo(
-                        targetValue = 0f,
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioLowBouncy,
-                            stiffness = Spring.StiffnessMedium
+                    launch {
+                        cardRotation.animateTo(
+                            targetValue = 0f,
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessLow
+                            )
                         )
-                    )
+                    }
                 }
             )
             .systemBarsPadding()

@@ -9,8 +9,6 @@ import androidx.core.view.WindowCompat
 import cafe.adriel.voyager.core.registry.rememberScreen
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.FadeTransition
-import io.vallfg.valorantlfgmultiplatform.android.screens.PostViewScreen
-import io.vallfg.valorantlfgmultiplatform.android.screens.PostViewScreenProps
 import io.vallfg.valorantlfgmultiplatform.android.theme.ValorantLfgTheme
 import io.vallfg.valorantlfgmultiplatform.nav.DestinationsNavigator
 import io.vallfg.valorantlfgmultiplatform.nav.SharedScreen
@@ -29,7 +27,7 @@ class MainActivity : ComponentActivity() {
             val lfgNavigator = get<DestinationsNavigator>()
             val postViewScreen  = rememberScreen(SharedScreen.PostView("",  ""))
             ValorantLfgTheme {
-                Navigator(postViewScreen) {
+                Navigator(playerSetupScreen) {
 
                     LaunchedEffect(key1 = true) {
                         lfgNavigator.handleNavigationCommands(it)
