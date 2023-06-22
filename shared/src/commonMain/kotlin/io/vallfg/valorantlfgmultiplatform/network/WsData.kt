@@ -1,5 +1,6 @@
 package io.vallfg.valorantlfgmultiplatform.network
 
+import io.vallfg.valorantlfgmultiplatform.Rank
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -129,7 +130,7 @@ data class WsPlayerData (
     companion object {
         val emptyPlayer by lazy {
             WsPlayerData(
-                "", "", "", "", "", "", "", "", 0,
+                "", "name", "tag", "", "", "", Rank.values().random().string, "", 0,
                 0.0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0.0,
                 0.00,0.0,0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                 0, 0, 0.0, "0.0", "0.0",

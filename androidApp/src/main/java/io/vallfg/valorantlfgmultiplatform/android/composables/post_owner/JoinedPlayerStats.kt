@@ -108,7 +108,9 @@ fun JoinedPlayersStats(
                                 DarkBluishBlack.copy(
                                     alpha = 1f - i * 0.1f
                                 )
-                            ),
+                            )
+                            .padding(4.dp)
+                        ,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         if (idx == 0) {
@@ -152,6 +154,7 @@ fun JoinedPlayersStats(
 @Composable
 fun PlayerInfoLayout(
     modifier: Modifier = Modifier,
+    colSize: Int = 160,
     content: @Composable () -> Unit
 ) {
     Layout(
@@ -161,21 +164,24 @@ fun PlayerInfoLayout(
         // Don't constrain child views further, measure them with given constraints
         // List of measured children
 
-        val maxWidth = measurables.maxOf { it.maxIntrinsicWidth(0) }
+        val maxWidth = measurables.maxOf { it.maxIntrinsicWidth(constraints.maxHeight) }
 
         val placeables = measurables.mapIndexed { i, measurable ->
             // Measure each children
             measurable.measure(
                 Constraints.fixed(
                     maxWidth,
-                    if (i == 0) measurable.minIntrinsicHeight(maxWidth) else 200
+                    if (i == 0)
+                        measurable.minIntrinsicHeight(maxWidth)
+                    else
+                        colSize
                 )
             )
         }
 
+        val height = (colSize * measurables.lastIndex - 1) + measurables.first().minIntrinsicHeight(maxWidth)
 
-        // Set the size of the layout as big as it can
-        layout(maxWidth, constraints.maxHeight) {
+        layout(maxWidth, height) {
             // Track the y co-ord we have placed children up to
             var yPosition = 0
 

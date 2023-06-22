@@ -1,7 +1,8 @@
 package io.vallfg.valorantlfgmultiplatform.domain.usecase
+
 import io.vallfg.valorantlfgmultiplatform.screen_models.post_owner.UiMessage
 
-class InsertFailedMessageUseCase {
+class ReplaceLoadingMessageUseCase {
 
     operator fun invoke(
         id: Int,
@@ -17,12 +18,16 @@ class InsertFailedMessageUseCase {
         val original = messages
             .getOrNull(idxOfSend) as? UiMessage.Outgoing ?: return messages
         return buildList {
-                addAll(messages.subList(0, idxOfSend))
-                add(
-                    UiMessage.Failed(original.message.text)
+            addAll(messages.subList(0, idxOfSend))
+            add(
+                UiMessage.Outgoing(
+                    id = original.id,
+                    message = original.message,
+                    loading = false,
+                    sentAt = original.sentAt
                 )
-                addAll(messages.subList(idxOfSend + 1, messages.size))
+            )
+            addAll(messages.subList(idxOfSend + 1, messages.size))
         }
     }
 }
-

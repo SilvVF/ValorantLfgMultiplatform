@@ -5,6 +5,7 @@ import cafe.adriel.voyager.core.model.coroutineScope
 import io.vallfg.valorantlfgmultiplatform.GameMode
 import io.vallfg.valorantlfgmultiplatform.Rank
 import io.vallfg.valorantlfgmultiplatform.domain.usecase.InsertFailedMessageUseCase
+import io.vallfg.valorantlfgmultiplatform.domain.usecase.ReplaceLoadingMessageUseCase
 import io.vallfg.valorantlfgmultiplatform.domain.usecase.SendMessageUseCase
 import io.vallfg.valorantlfgmultiplatform.domain.usecase.suspendOnError
 import io.vallfg.valorantlfgmultiplatform.domain.usecase.suspendOnSuccess
@@ -31,7 +32,8 @@ import kotlinx.datetime.toLocalDateTime
 class PostOwnerScreenModel(
     private val websocketsRepo: WebsocketsRepo,
     private val sendMessageUseCase: SendMessageUseCase,
-    private val insertFailedMessageUseCase: InsertFailedMessageUseCase
+    private val insertFailedMessageUseCase: InsertFailedMessageUseCase,
+    private val replaceLoadingMessageUseCase: ReplaceLoadingMessageUseCase
 ): StateScreenModel<PostOwnerScreenState>(PostOwnerScreenState.Loading) {
 
     private val eventChannel = Channel<PostOwnerScreenEvent>()
@@ -109,13 +111,18 @@ class PostOwnerScreenModel(
     private suspend fun onReceived(data: OutWsData) {
         when (data) {
             is Message -> {
-                mutableState.updateSuccess { state ->
-                    state.copy(
-                        messages = state.messages + toUiMessage(data)
-                    ).also {
-                        if (data.sender.clientId == state.clientId) {
-                            messageLoadingJobs[data.sendId]?.cancel()
-                        }
+                if (data.sender.clientId == state.value.clientId) {
+                    messageLoadingJobs[data.sendId]?.cancel()
+                    mutableState.updateSuccess { state ->
+                        state.copy(
+                            messages = replaceLoadingMessageUseCase(data.sendId, state.messages)
+                        )
+                    }
+                } else {
+                    mutableState.updateSuccess { state ->
+                        state.copy(
+                            messages = state.messages + toUiMessage(data)
+                        )
                     }
                 }
             }
