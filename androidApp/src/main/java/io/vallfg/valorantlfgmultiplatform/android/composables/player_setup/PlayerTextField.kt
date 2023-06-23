@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalComposeUiApi::class)
 package io.vallfg.valorantlfgmultiplatform.android.composables.player_setup
 
 import androidx.compose.animation.AnimatedVisibility
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -31,69 +31,111 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.vallfg.valorantlfgmultiplatform.android.R
 
+class PlayerTextFieldState(
+    private val focusManager: FocusManager,
+    private val keyboard: SoftwareKeyboardController?,
+    val keyboardOptions: KeyboardOptions,
+    val keyboardActions: KeyboardActions,
+    val searchingAnimationSpec: InfiniteRepeatableSpec<Float>,
+    val searching: Boolean,
+    val singleLine: Boolean,
+) {
+
+    var focused by mutableStateOf(false)
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun hideKeyboardAndClearFocus() {
+        keyboard?.hide()
+        focusManager.clearFocus()
+    }
+}
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
+fun rememberPlayerTextFieldState(
+    focusManager: FocusManager = LocalFocusManager.current,
+    keyboard: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(),
+    keyboardActions: KeyboardActions = KeyboardActions(),
+    searchingAnimationSpec: InfiniteRepeatableSpec<Float> = InfiniteRepeatableSpec(
+        animation = tween(700, easing = FastOutSlowInEasing)
+    ),
+    singleLine: Boolean = true,
+    searching: Boolean = false,
+) = remember {
+    PlayerTextFieldState(focusManager, keyboard, keyboardOptions, keyboardActions, searchingAnimationSpec, searching, singleLine)
+}
+
+@Composable
 fun PlayerTextField(
     modifier: Modifier = Modifier,
-    searching: Boolean = false,
     text: String,
+    hint: String =  stringResource(
+        id = R.string.player_text_field_hint
+    ),
+    playerTextFieldState: PlayerTextFieldState,
     onTextChanged: (String) -> Unit,
-    onDone: () -> Unit
 ) {
 
-    val keyboard = LocalSoftwareKeyboardController.current
-    val focusManager = LocalFocusManager.current
-    var focused by remember { mutableStateOf(false) }
     val darkGrayLogoBg = Color(0xff1A2733)
 
     BasicTextField(
         modifier = modifier
             .onFocusChanged {
-                focused = it.isFocused
+                playerTextFieldState.focused = it.isFocused
             },
         value = text,
         textStyle = TextStyle(fontSize = 24.sp, color = Color.White),
         onValueChange = onTextChanged,
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            autoCorrect = false,
-            imeAction = ImeAction.Done
-        ),
-        keyboardActions = KeyboardActions(
-            onDone = {
-                keyboard?.hide()
-                focusManager.clearFocus()
-                onDone()
-            }
-        )
+        singleLine = playerTextFieldState.singleLine,
+        cursorBrush = SolidColor(Color.Red),
+        keyboardOptions = playerTextFieldState.keyboardOptions,
+        keyboardActions = playerTextFieldState.keyboardActions
     ) { innerTextField ->
         Row(
             modifier = Modifier
-                .fillMaxHeight()
-                .clip(RoundedCornerShape(12.dp))
-                .border(1.dp, Color.Black, RoundedCornerShape(12.dp)),
+                .clip(
+                    RoundedCornerShape(12.dp)
+                )
+                .border(
+                    1.dp,
+                    Color.Black,
+                    RoundedCornerShape(12.dp)
+                )
+                .drawBehind {
+                    drawRect(
+                        color = darkGrayLogoBg,
+                        topLeft = Offset.Zero,
+                        size = Size(
+                            width = this.size.width * 0.2f,
+                            height = this.size.height
+                        )
+                    )
+                }
+                .padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
             Column(
-                Modifier
-                    .weight(0.2f, false)
-                    .fillMaxHeight()
-                    .background(darkGrayLogoBg),
+                Modifier.fillMaxWidth(0.2f),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -103,22 +145,20 @@ fun PlayerTextField(
                     modifier = Modifier
                         .padding(8.dp)
                         .rotate(
-                            if (searching) {
+                            if (playerTextFieldState.searching) {
                                 rememberInfiniteTransition()
                                     .animateFloat(
                                         initialValue = 0f,
                                         targetValue = 360f,
-                                        animationSpec = InfiniteRepeatableSpec(
-                                            animation = tween(700, easing = FastOutSlowInEasing)
-                                        )
+                                        animationSpec = playerTextFieldState.searchingAnimationSpec
                                     ).value
                             } else {
-                               0f
+                                0f
                             }
                         ),
                     tint = Color.White
                 )
-                AnimatedVisibility(visible = focused) {
+                AnimatedVisibility(visible = playerTextFieldState.focused) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(0.6f)
@@ -128,13 +168,15 @@ fun PlayerTextField(
                 }
             }
             Box(
-                Modifier
-                    .weight(0.8f)
-                    .padding(start = 12.dp), contentAlignment = Alignment.CenterStart) {
+                modifier = Modifier
+                    .padding(start = 4.dp)
+                    .weight(1f),
+                contentAlignment = Alignment.CenterStart
+            ) {
                 innerTextField()
                 text.ifEmpty {
                     Text(
-                        text = stringResource(id = R.string.player_text_field_hint),
+                        text = hint,
                         color = Color.LightGray,
                         modifier = Modifier.padding(start = 4.dp)
                     )

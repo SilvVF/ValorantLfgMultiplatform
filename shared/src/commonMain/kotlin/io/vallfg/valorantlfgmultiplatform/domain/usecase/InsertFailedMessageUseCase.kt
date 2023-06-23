@@ -19,7 +19,7 @@ class InsertFailedMessageUseCase {
         return buildList {
                 addAll(messages.subList(0, idxOfSend))
                 add(
-                    UiMessage.Failed(original.message.text)
+                    UiMessage.Failed(original.message)
                 )
                 addAll(messages.subList(idxOfSend + 1, messages.size))
         }

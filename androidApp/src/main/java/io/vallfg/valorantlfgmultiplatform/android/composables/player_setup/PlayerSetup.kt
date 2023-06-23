@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.SnackbarDuration
@@ -25,10 +27,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.vallfg.valorantlfgmultiplatform.android.R
@@ -37,6 +41,7 @@ import io.vallfg.valorantlfgmultiplatform.domain.usecase.ParseError
 import io.vallfg.valorantlfgmultiplatform.screen_models.player_setup.PlayerSetupState
 import kotlinx.coroutines.flow.Flow
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun PlayerSetup(
     state: PlayerSetupState,
@@ -69,16 +74,24 @@ fun PlayerSetup(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+
             PlayerTextField(
                 modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .height(70.dp),
+                    .fillMaxWidth(0.9f),
                 text = state.account,
                 onTextChanged = onPlayerAccountChange,
-                onDone = {
-                    onGetPlayerButtonClick(state.account)
-                },
-                searching = state.fetching,
+                playerTextFieldState = rememberPlayerTextFieldState(
+                    keyboardOptions = KeyboardOptions(
+                        autoCorrect = false,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            onGetPlayerButtonClick(state.account)
+                        }
+                    ),
+                    searching = state.fetching
+                )
             )
             Button(
                 onClick = { onGetPlayerButtonClick(state.account) },

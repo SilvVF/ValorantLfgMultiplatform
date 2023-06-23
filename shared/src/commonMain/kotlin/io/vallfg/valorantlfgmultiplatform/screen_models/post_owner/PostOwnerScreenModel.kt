@@ -196,7 +196,7 @@ class PostOwnerScreenModel(
         message: UiMessage.Failed
     ) = coroutineScope.launch {
             removeFailedMessage(message)
-            sendMessage(message.text)
+            sendMessage(message.message.text)
     }
 
     private fun removeFailedMessage(

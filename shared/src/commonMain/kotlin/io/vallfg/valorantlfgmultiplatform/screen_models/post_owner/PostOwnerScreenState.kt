@@ -32,20 +32,24 @@ sealed class PostOwnerScreenState(
     ): PostOwnerScreenState()
 }
 
-sealed class UiMessage {
+sealed class UiMessage(
+    open val message: Message
+) {
 
     data class Outgoing(
         val id: Int,
-        val message: Message,
+        override val message: Message,
         val loading: Boolean,
         val sentAt: LocalDateTime
-    ): UiMessage()
+    ): UiMessage(message)
 
-    data class Failed(val text: String): UiMessage()
+    data class Failed(
+        override val message: Message,
+    ): UiMessage(message)
 
     data class Incoming(
-        val message: Message,
-    ): UiMessage()
+        override val message: Message,
+    ): UiMessage(message)
 }
 
 

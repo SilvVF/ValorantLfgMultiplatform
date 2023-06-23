@@ -36,11 +36,12 @@ private enum class Screen {
 
 @Composable
 fun ThreePaneLayout(
+    width: Int = LocalConfiguration.current.screenWidthDp,
     left: @Composable () -> Unit,
     middle: @Composable () -> Unit,
     right: @Composable () -> Unit
 ) {
-    val screenWidth = LocalConfiguration.current.screenWidthDp
+    val screenWidth = width
 
     var currentScreen by remember {
         mutableStateOf(MID)
@@ -149,7 +150,9 @@ fun ThreePaneLayout(
             this
         }
     ) {
-        left()
+        if (currentScreen == MID || currentScreen == LEFT) {
+            left()
+        }
     }
     Box(modifier = Modifier
         .fillMaxSize()
@@ -195,7 +198,9 @@ fun ThreePaneLayout(
                 this
             }
     ) {
-        right()
+        if (currentScreen == MID || currentScreen == RIGHT) {
+            right()
+        }
     }
 }
 

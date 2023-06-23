@@ -41,7 +41,7 @@ android {
 dependencies {
     implementation(project(":shared"))
     val composeBom = platform(libs.androidx.compose.bom)
-
+    implementation("androidx.compose.material:material-icons-extended:1.4.3")
     implementation(libs.androidx.core.ktx)
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation("androidx.activity:activity-compose:1.7.2")

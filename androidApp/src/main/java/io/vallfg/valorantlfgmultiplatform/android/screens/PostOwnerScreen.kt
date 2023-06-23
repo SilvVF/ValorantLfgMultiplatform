@@ -1,18 +1,26 @@
 package io.vallfg.valorantlfgmultiplatform.android.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import io.vallfg.valorantlfgmultiplatform.GameMode
 import io.vallfg.valorantlfgmultiplatform.Rank
+import io.vallfg.valorantlfgmultiplatform.android.atoms.LfgBackgroundBox
+import io.vallfg.valorantlfgmultiplatform.android.atoms.LfgText
 import io.vallfg.valorantlfgmultiplatform.android.atoms.ThreePaneLayout
 import io.vallfg.valorantlfgmultiplatform.android.composables.post_owner.Messages
+import io.vallfg.valorantlfgmultiplatform.android.composables.post_owner.PostInfo
 import io.vallfg.valorantlfgmultiplatform.android.composables.post_owner.PostOwner
+import io.vallfg.valorantlfgmultiplatform.android.theme.DarkBackGround
 import io.vallfg.valorantlfgmultiplatform.network.Message
 import io.vallfg.valorantlfgmultiplatform.network.WsPlayerData
 import io.vallfg.valorantlfgmultiplatform.screen_models.post_owner.PostOwnerScreenModel
@@ -79,7 +87,14 @@ fun PostOwnerSreenPreview() {
                         )
                     ))
                 }
-                add(UiMessage.Failed("message"))
+                add(UiMessage.Failed(
+                    message = Message(
+                        text = "Message #Send",
+                        sendId = 1213,
+                        sender = WsPlayerData.emptyPlayer.copy(name = "me", clientId = "123"),
+                        sentAtEpochSecond = Clock.System.now().epochSeconds
+                    )
+                ))
                 add(
                     UiMessage.Outgoing(
                         loading = true,
@@ -93,10 +108,31 @@ fun PostOwnerSreenPreview() {
                         sentAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                     )
                 )
+                repeat(3) {
+                    add(UiMessage.Outgoing(
+                        loading = false,
+                        message = Message(
+                            text = "Message #Send $it",
+                            sendId = 1213,
+                            sender = WsPlayerData.emptyPlayer.copy(name = "me", clientId = "123"),
+                            sentAtEpochSecond = Clock.System.now().epochSeconds
+                        ),
+                        id = 0,
+                        sentAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                    ))
+                }
+                add(UiMessage.Incoming(
+                    message = Message(
+                        text = "Message #",
+                        sendId = 1213,
+                        sender = WsPlayerData.emptyPlayer.copy(name = "user${2}", clientId = (2).toString()),
+                        sentAtEpochSecond = Clock.System.now().epochSeconds
+                    )
+                ))
                 add(UiMessage.Outgoing(
                     loading = false,
                     message = Message(
-                        text = "Message #Send",
+                        text = "Message #Send ",
                         sendId = 1213,
                         sender = WsPlayerData.emptyPlayer.copy(name = "me", clientId = "123"),
                         sentAtEpochSecond = Clock.System.now().epochSeconds
@@ -107,13 +143,22 @@ fun PostOwnerSreenPreview() {
             }
         )
     }
-
     ThreePaneLayout(
         left = {
-
+            state.postState?.let {
+                PostInfo(it, state.postId ?: "")
+            } ?: LfgBackgroundBox(Modifier.fillMaxSize()) {
+                    LfgText(text = "Loading post info")
+            }
         },
         right = {
-            Messages(state)
+            Box(
+                Modifier
+                    .background(DarkBackGround)
+                    .fillMaxSize()
+            ) {
+                Messages(state)
+            }
         },
         middle = {
             PostOwner(state = state, events = emptyFlow())
